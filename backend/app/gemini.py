@@ -30,6 +30,21 @@ def map_provider_error(error):
     return AIError("provider_unavailable", "Gemini could not complete this request. Your saved work is unchanged.", 502)
 
 
+def provider_schema(schema):
+    allowed = {"type", "properties", "required", "items", "minItems", "maxItems", "enum", "$defs", "$ref", "title", "description", "minimum", "maximum", "anyOf", "oneOf", "additionalProperties", "format"}
+    def clean(value):
+        if isinstance(value, list):
+            return [clean(item) for item in value]
+        if not isinstance(value, dict):
+            return value
+        result = {}
+        for key, item in value.items():
+            if key in allowed:
+                result[key] = {name: clean(child) for name, child in item.items()} if key in ("properties", "$defs") else clean(item)
+        return result
+    return clean(schema.model_json_schema())
+
+
 def iter_gemini(prompt, schema):
     settings = get_settings()
     if not settings.gemini_api_key:
@@ -44,7 +59,7 @@ def iter_gemini(prompt, schema):
     try:
         stream = client.models.generate_content_stream(model=settings.gemini_model, contents=prompt,
             config=types.GenerateContentConfig(system_instruction=SYSTEM, response_mime_type="application/json",
-                response_json_schema=schema.model_json_schema(), max_output_tokens=settings.ai_max_output_tokens,
+                response_json_schema=provider_schema(schema), max_output_tokens=settings.ai_max_output_tokens,
                 automatic_continuation=False, store=False))
         for chunk in stream:
             if time.monotonic() - started > settings.ai_timeout_seconds * 2 + 5:

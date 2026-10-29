@@ -1,7 +1,8 @@
 import os
 from contextlib import asynccontextmanager
 from typing import Literal
-from fastapi import FastAPI, Depends, HTTPException, Response
+from fastapi import FastAPI, Depends, HTTPException, Response, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import select, text
@@ -9,10 +10,17 @@ from sqlalchemy.orm import Session
 from .database import Base, engine, get_db, Project, Source, Draft
 from .research import canonical_url, fetch_article, build_brief
 from .writing import analyze, decide, metrics
+from .serializers import draft_json, project_json
+from .config import get_settings
+from .ai_routes import router as ai_router
+from .auth import router as auth_router, authenticated
 
 
 @asynccontextmanager
 async def lifespan(app):
+    settings = get_settings()
+    if settings.cloud and (not settings.database_url.startswith("postgresql+") or len(settings.workspace_password) < 12 or len(settings.session_secret) < 32):
+        raise RuntimeError("Hosted workspace requires PostgreSQL and complete access configuration.")
     # Migrations are the deployment path; create_all is only for zero-setup SQLite.
     if engine.url.drivername.startswith("sqlite"):
         Base.metadata.create_all(engine)
@@ -20,7 +28,7 @@ async def lifespan(app):
 
 
 app = FastAPI(title="AI Editorial Workspace", version="1.0.0", lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(","), allow_methods=["GET", "POST", "PUT", "DELETE"], allow_headers=["Content-Type"])
+
 
 
 class ProjectInput(BaseModel):
@@ -54,24 +62,10 @@ class DecisionInput(BaseModel):
 
 
 def find_project(db, project_id):
-    project = db.get(Project, project_id)
+    project = db.scalars(select(Project).where(Project.id == project_id).with_for_update()).first()
     if project is None:
         raise HTTPException(404, "Project not found")
     return project
-
-
-def draft_json(draft):
-    if draft is None:
-        return None
-    return {"id": draft.id, "original": draft.original, "current": draft.current, "version": draft.version,
-            "suggestions": draft.suggestions, "revisions": draft.revisions,
-            "original_metrics": metrics(draft.original), "metrics": metrics(draft.current)}
-
-
-def project_json(project):
-    return {"id": project.id, "title": project.title, "created_at": project.created_at.isoformat(),
-            "sources": [{"id": s.id, "title": s.title, "url": s.url, "content": s.content, "kind": s.kind, "reliability": s.reliability} for s in project.sources],
-            "brief": project.brief, "draft": draft_json(project.draft)}
 
 
 def check_version(draft, version):
@@ -206,3 +200,30 @@ def export_project(project_id: str, db: Session = Depends(get_db)):
     for i, source in enumerate(project.sources, 1):
         body += f"\n{i}. {source.title} — {source.url or 'Pasted text (no public URL)'} [{source.reliability}]\n"
     return Response(body, media_type="text/markdown", headers={"Content-Disposition": 'attachment; filename="editorial.md"'})
+
+
+app.include_router(ai_router)
+
+
+@app.middleware("http")
+async def protect_workspace(request: Request, call_next):
+    settings = get_settings()
+    if settings.cloud and (not settings.database_url.startswith("postgresql+") or len(settings.workspace_password) < 12 or len(settings.session_secret) < 32):
+        return JSONResponse({"detail": "Hosted workspace configuration is incomplete."}, status_code=503)
+    public = {"/api/health", "/api/auth/session", "/api/auth/login"}
+    origin = request.headers.get("origin")
+    if request.method not in ("GET", "HEAD", "OPTIONS") and origin:
+        own_origin = str(request.base_url).rstrip("/")
+        if origin not in settings.cors_origins and origin != own_origin:
+            return JSONResponse({"detail": "This request origin is not allowed."}, status_code=403)
+    if request.method != "OPTIONS" and request.url.path not in public:
+        if (request.url.path.startswith("/api/") or request.url.path in ("/docs", "/openapi.json")) and not authenticated(request, settings):
+            return JSONResponse({"detail": "Sign in to the workspace to continue."}, status_code=401)
+    response = await call_next(request)
+    if request.url.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+    return response
+
+app.include_router(auth_router)
+
+app.add_middleware(CORSMiddleware, allow_origins=list(get_settings().cors_origins), allow_credentials=True, allow_methods=["GET", "POST", "PUT", "DELETE"], allow_headers=["Content-Type"])

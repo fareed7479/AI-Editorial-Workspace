@@ -1,5 +1,7 @@
 import os
 from sqlalchemy import create_engine, String, Text, ForeignKey, DateTime, JSON, Integer
+from sqlalchemy.pool import NullPool
+from .config import get_settings
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker
 from datetime import datetime, timezone
 from uuid import uuid4
@@ -50,11 +52,36 @@ class Draft(Base):
     revisions: Mapped[list] = mapped_column(JSON, default=list)
 
 
+class GenerationJob(Base):
+    __tablename__ = "generation_jobs"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[str] = mapped_column(String(20))
+    status: Mapped[str] = mapped_column(String(20), default="running")
+    fingerprint: Mapped[str] = mapped_column(String(64))
+    source_fingerprint: Mapped[str] = mapped_column(String(64))
+    draft_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    provider: Mapped[str] = mapped_column(String(20), default="gemini")
+    model: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now, index=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    usage: Mapped[dict] = mapped_column(JSON, default=dict)
+    result: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    error_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
+
+
+class RequestQuota(Base):
+    __tablename__ = "request_quotas"
+    key: Mapped[str] = mapped_column(String(100), primary_key=True)
+    requests: Mapped[int] = mapped_column(Integer, default=0)
+
+
 def make_engine(url):
-    return create_engine(url, connect_args={"check_same_thread": False} if url.startswith("sqlite") else {})
+    return create_engine(url, connect_args={"check_same_thread": False} if url.startswith("sqlite") else {},
+                         **({} if url.startswith("sqlite") else {"poolclass": NullPool, "pool_pre_ping": True}))
 
 
-engine = make_engine(os.getenv("DATABASE_URL", "sqlite:///./editorial.db"))
+engine = make_engine(get_settings().database_url)
 SessionLocal = sessionmaker(engine, expire_on_commit=False)
 
 

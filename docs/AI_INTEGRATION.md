@@ -22,3 +22,15 @@ Research conversion requires one summary per submitted source, exact supporting 
 ## Phase 10: reviewed AI writing
 
 Gemini writing suggestions map exact passages (including repeated occurrences), keep numerical values intact and remain individually editable/acceptable/rejectable. Newsletter output must have a 300–500-word body and valid numbered citations backed by exact excerpts from at least three stored sources. It is a reviewable result, not an automatic draft overwrite. Six writing/newsletter validation tests passed; model evaluation is still credential-dependent.
+
+## Phase 11: streaming, persistence and access
+
+The API streams NDJSON started/progress/complete/error events. Progress reports character counts; raw partial model JSON is not inserted into drafts. A completed response must pass both schema and editorial validation before being saved. Cancelled/failed calls retain a request record. Hard process termination can leave a running record; history makes that state visible and a new request needs a new UUID.
+
+Generation jobs persist model, timestamps, status, input fingerprint and provider token metadata. A repeated completed request ID replays its saved result without another provider call or quota charge. Changed inputs and stale draft versions are rejected. A UTC daily SQL-backed request cap survives process restarts; it is not a spending budget. Failed provider attempts count. SDK transport retry is bounded; the UI does not silently regenerate failed editorial output.
+
+Research saves only after evidence checks. Writing adds individually reviewable suggestions without rewriting the draft. Newsletters remain saved previews until Use this draft; applying preserves the original and prior version. Changes during generation prevent stale results from being applied.
+
+Single-editor access uses an eight-hour signed HttpOnly session, constant-time password comparison, origin checks and a shared SQL login-attempt limit. Hosted startup fails closed without PostgreSQL, a strong session secret and a workspace password. This is one private editor workspace, not multi-tenant accounts or collaboration.
+
+Controlled verification: 55 backend tests passed, including malformed provider output, evidence references, numerical preservation, stale results, quota/replay and authentication. Live provider and deployed verification remain separate gates.

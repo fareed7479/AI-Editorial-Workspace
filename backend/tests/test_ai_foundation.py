@@ -58,3 +58,11 @@ def test_provider_errors_are_sanitized(code, expected):
     error = map_provider_error(SimpleNamespace(code=code, message="sensitive upstream payload"))
     assert error.code == expected
     assert "sensitive" not in str(error)
+
+
+def test_provider_schema_uses_supported_constraints():
+    from app.gemini import provider_schema
+    schema = provider_schema(WritingOutput)
+    assert "summary" in schema["properties"]
+    assert "minLength" not in schema["properties"]["summary"]
+    assert schema["additionalProperties"] is False

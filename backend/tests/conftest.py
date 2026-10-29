@@ -1,3 +1,10 @@
+import os
+# Keep tests isolated from local/cloud credentials and the user database.
+os.environ["DATABASE_URL"] = "sqlite://"
+os.environ["GEMINI_API_KEY"] = ""
+os.environ["WORKSPACE_PASSWORD"] = ""
+os.environ["SESSION_SECRET"] = ""
+os.environ["VERCEL"] = ""
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine

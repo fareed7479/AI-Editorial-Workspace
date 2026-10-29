@@ -43,6 +43,8 @@ def research_result(value, snapshot):
         for claim in item["claims"]:
             for reference in claim["evidence"]:
                 evidence.append({**checked_evidence(reference, sources), "type": claim["type"], "claim": claim["text"]})
+        if not any(e["source_id"] == source["id"] for e in evidence):
+            raise AIError("invalid_evidence", "A source summary has no evidence from that source. Nothing was saved.")
         items.append({"source_id": source["id"], "title": source["title"], "what_happened": evidence,
             "reliability": source["reliability"], "reliability_note": "Editor-supplied classification; Gemini has not independently verified this source.",
             "why_it_matters": {"type": "analysis", "text": item["why_it_matters"]},
