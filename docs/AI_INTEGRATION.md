@@ -18,3 +18,7 @@ Official references: [Python SDK](https://googleapis.github.io/python-genai/), [
 ## Phase 9: source-grounded research
 
 Research conversion requires one summary per submitted source, exact supporting excerpts and known source IDs. Titles, URLs and reliability labels come from stored records rather than model output. Synthesis, uncertainty and evidence-backed contradictions remain explicitly editorial interpretation. Five controlled research tests passed; real Gemini output still requires live evaluation. Request routing/persistence is connected in phase 11.
+
+## Phase 10: reviewed AI writing
+
+Gemini writing suggestions map exact passages (including repeated occurrences), keep numerical values intact and remain individually editable/acceptable/rejectable. Newsletter output must have a 300–500-word body and valid numbered citations backed by exact excerpts from at least three stored sources. It is a reviewable result, not an automatic draft overwrite. Six writing/newsletter validation tests passed; model evaluation is still credential-dependent.
