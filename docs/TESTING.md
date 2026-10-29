@@ -124,3 +124,22 @@ The documentation-only refresh on October 29, 2026 checked all 10 Markdown files
 ## Outstanding verification
 
 Live PostgreSQL, container builds, remote CI, HTTPS/public deployment, physical phones, simultaneous-editor concurrency, and Gemini generation remain unverified. Model output needs a separate evaluation of evidence, meaning preservation, invalid citations, quota failures, and stale responses after integration; passing existing deterministic tests will not prove those future capabilities.
+
+## Phases 8–12 verification (October 29, 2026)
+
+- Backend: 55 tests passed (controlled SDK/API responses; no live Gemini key used).
+- Frontend: 2 Vitest tests passed with one worker. An earlier unrestricted parallel run exhausted local memory; the test command now bounds workers.
+- Production Vite build passed; TypeScript build is checked by the Vercel build command.
+- Browser: all 14 desktop/mobile tests passed in an isolated temporary SQLite workspace; final runner exited 0. Earlier teardown file locks were resolved by launching the Windows test API directly through the base Python executable with the virtual environment package path.
+- Migration 002 upgrades the isolated database before browser tests. Existing local workspace data is not used.
+- Coverage includes authentication/errors, evidence references, invalid JSON, quotas/replay, stale generation, original preservation, reviewed newsletter application, and existing source/edit/export flows.
+
+Run isolated browser verification from the repository root:
+
+~~~powershell
+.\.venv\Scripts\python.exe scripts/verify_stack.py
+~~~
+
+Live Gemini responses, managed PostgreSQL migration, production session/proxy behavior and persistence after redeployment remain unverified. A protected frontend preview is only a build check, not the complete deployed workflow.
+
+The protected Vercel frontend build reached READY. Its initial audit flagged legacy Vitest/mock worker dependencies; Vitest was updated to 5.0.5 with compatible Vite 6.4.5, and the subsequent npm install audit reported zero vulnerabilities. Test runner remains limited to one worker. This tooling update does not change the application interface.

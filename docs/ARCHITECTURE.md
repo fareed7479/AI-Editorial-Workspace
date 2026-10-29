@@ -16,7 +16,7 @@
 | Writing | [writing.py](../backend/app/writing.py) | Metrics, checks, suggestion decisions, offset/version handling |
 | Schema history | [migrations/](../backend/migrations/) | Alembic upgrade/downgrade |
 
-The UI calls /api endpoints on the configured API origin. FastAPI reads/writes SQL and returns the saved workspace. Optional URL imports fetch and extract a public page before storage. There is **no runtime LLM client, generation stream, queue, or background worker**.
+The UI calls /api endpoints on the configured API origin. FastAPI reads/writes SQL and returns the saved workspace. Optional URL imports fetch and extract a public page before storage. The optional official Gemini Python client streams validated generation progress. There is no queue or background worker. [AI_INTEGRATION.md](AI_INTEGRATION.md) describes validation and retry behavior.
 
 ## Stack and repository boundaries
 
@@ -32,7 +32,7 @@ The root URL renders Landing.tsx; #/workspace selects the workspace without a ro
 
 ## Relational model
 
-IDs are generated UUID strings stored in string columns. The database has three application tables:
+IDs are generated UUID strings stored in string columns. The database preserves the original three content tables and adds generation_jobs (request UUID, snapshot fingerprint, model, status, usage and result JSON) and request_quotas (atomic shared request counters) in migration 002:
 
 | Table | Main fields | Relationships and constraints |
 | --- | --- | --- |
@@ -101,7 +101,7 @@ The example source URL is illustrative. Sending it without pasted content would 
 6. **After acceptance:** shift later offsets and mark overlapping pending suggestions stale. Run checks again when needed.
 7. **Compare/export:** use saved server state. Source changes clear the brief but do not automatically regenerate or rewrite the draft.
 
-Sequential stale requests are rejected. The version check is **not an atomic compare-and-swap transaction**, so simultaneous multi-editor writes require further work. History is inspectable, not a full restore/undo API.
+Sequential stale requests are rejected. PostgreSQL mutations lock the project row before checking the draft version. Source/draft changes during generation invalidate its result. SQLite remains a local single-editor mode; this is not a multi-tenant collaboration product. History is inspectable, not a full restore/undo API.
 
 ## Input and import boundaries
 
@@ -124,4 +124,18 @@ Run the API from backend/ so the default SQLite URL resolves to backend/editoria
 
 [compose.yaml](../compose.yaml) defines a local PostgreSQL/API/web topology with readiness checks. It has not been executed successfully in the recorded environment. The [CI workflow](../.github/workflows/ci.yml) declares PostgreSQL migration and browser checks; no remote success is asserted here.
 
-**Planned:** adapt the FastAPI entrypoint and frontend routing for Vercel, connect managed PostgreSQL, add access controls, and introduce a validated Gemini adapter. The architecture above describes current code, not those future services.
+**Cloud source prepared:** backend/index.py exports FastAPI, frontend/vercel.json proxies API traffic, and two protected Vercel projects are linked. Managed PostgreSQL, environment provisioning, migrations and deployed checks remain gates. See [DEPLOYMENT.md](DEPLOYMENT.md).
+
+## Gemini and access endpoints
+
+All /api workspace routes require a signed session when a workspace password is configured; hosted startup requires it. Health and auth session/login remain public. Secrets are never returned.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET / POST / POST | /api/auth/session, /api/auth/login, /api/auth/logout | Session state, password login, logout |
+| GET | /api/ai/config and /api/ai/usage | Readiness, model and shared daily quota |
+| POST | /api/projects/{id}/ai/generate | UUID, kind and draft version; NDJSON validated progress/result |
+| GET | /api/projects/{id}/ai/jobs and /api/projects/{id}/ai/jobs/{job_id} | Last ten jobs or one persisted result |
+| POST | /api/projects/{id}/ai/jobs/{job_id}/apply | Explicit, version-checked newsletter application |
+
+Full error and data boundaries: [AI integration](AI_INTEGRATION.md).

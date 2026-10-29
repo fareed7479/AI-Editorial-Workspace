@@ -76,7 +76,7 @@ def check_version(draft, version):
 @app.get("/api/health")
 def health(db: Session = Depends(get_db)):
     db.execute(text("SELECT 1"))
-    return {"status": "ok", "mode": "deterministic", "version": "1.0.0"}
+    return {"status": "ok", "mode": "gemini-enabled" if get_settings().gemini_api_key else "deterministic", "version": "1.0.0"}
 
 
 @app.get("/api/projects")

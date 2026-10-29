@@ -4,7 +4,7 @@
 
 Fieldnotes is a single-editor workspace built with **React + TypeScript, Python + FastAPI, and SQL**. It connects source collection, research assistance, draft editing, revision comparison, and Markdown export in one interface.
 
-> **Current status — October 29, 2026:** the local workflow is implemented and tested. Research is extractive; writing checks are rule-based. **Gemini integration, streaming, authentication, and Vercel deployment are planned, not implemented.**
+> **Current status — October 29, 2026:** local research/editing plus optional Gemini research, writing, newsletter previews, streamed progress, durable usage records and private workspace access are implemented. Controlled tests pass. Live Gemini, managed PostgreSQL and production deployment still require credential-dependent verification.
 
 [Quick start](#quick-start) · [Workflow](#the-editorial-workflow) · [Feature status](#feature-status) · [Documentation](docs/README.md) · [Next phases](docs/ROADMAP.md)
 
@@ -22,7 +22,7 @@ Open **[http://127.0.0.1:5173](http://127.0.0.1:5173)**. The root URL opens the 
 
 ### First-time setup on Windows
 
-Requires **Python 3.10+** and **Node.js 22+**:
+Requires **Python 3.10+** and **Node.js 22.12+ (24 recommended)**:
 
 ~~~powershell
 python -m venv .venv
@@ -50,6 +50,12 @@ No Docker, cloud database, or LLM key is needed for the default local workflow.
 | [API health](http://127.0.0.1:8000/api/health) | Backend/database connectivity |
 | [API documentation](http://127.0.0.1:8000/docs) | Interactive endpoint schemas |
 
+## Enable Gemini
+
+Put your key in the ignored root .env as GEMINI_API_KEY. Keep GEMINI_MODEL configurable. Restart after database changes; refresh the workspace to see key readiness. If WORKSPACE_PASSWORD is set, sign in with that separate password. Gemini tools appear inside each project; research needs three sources, writing needs a saved draft, and newsletters need a saved brief. Review a generated newsletter before choosing Use this draft.
+
+See [Gemini behavior](docs/AI_INTEGRATION.md) and [Vercel setup](docs/DEPLOYMENT.md) for exact limits, privacy and remaining release checks. Never put provider credentials in VITE_ variables.
+
 ## The editorial workflow
 
 1. **Open the workspace** from the landing page, then **create a project** or choose **Open sample project** for a fictional demonstration.
@@ -72,12 +78,12 @@ The landing page introduces the app in the existing Fieldnotes theme. My workspa
 | --- | --- | --- |
 | Projects | Create, list, search, reopen | No account ownership or collaboration |
 | Sources | Paste/import, classify, remove, reject duplicates | Publisher restrictions; reliability is editor-supplied |
-| Research | Source-linked extracts and what/why/who/angle fields | No LLM synthesis or independent fact-checking |
-| Writing | Three checks and individual accept/reject | Complex rewrites need human review |
+| Research | Extractive tools plus Gemini synthesis with checked source excerpts | No independent fact-checking; live model evaluation pending |
+| Writing | Rule-based checks, Gemini suggestions, reviewed newsletter previews | Human review required; original/revisions preserved |
 | Revisions | Original preservation, version history, metrics | No transactional simultaneous-editor protocol |
 | Interface | Responsive research, writing, comparison, and state handling | Mobile viewport tested; no native mobile app |
 | Delivery | Tests, CI configuration, dependency locks, containers | Cloud runtime and public deployment unverified |
-| Gemini/Vercel | Agreed next direction | Integration and deployment not started |
+| Gemini/Vercel | Gemini integrated; two protected Vercel projects linked | Key, PostgreSQL migration and live production verification pending |
 
 ## Project structure
 
@@ -144,6 +150,6 @@ Use ../.venv/bin/python on macOS/Linux. Playwright starts/reuses the frontend an
 | [AI disclosure](docs/AI_DISCLOSURE.md) | Runtime behavior, data flow, safeguards, and limitations |
 | [Newsletter sample](docs/SAMPLE_NEWSLETTER.md) | A dated, sourced editorial example |
 | [Before/after example](docs/BEFORE_AFTER.md) | Review decisions and meaning preservation |
-| [Roadmap](docs/ROADMAP.md) | Planned Gemini and Vercel phases |
+| [Roadmap](docs/ROADMAP.md) | Gemini/Vercel delivery status and remaining gates |
 
 **Deployment boundary:** this is a single-editor application without login or AI usage controls. Protect the backend before public exposure. Gemini credentials, managed PostgreSQL, and verified Vercel configuration belong to the next phases.

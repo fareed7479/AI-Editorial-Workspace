@@ -2,7 +2,7 @@
 
 **Purpose:** help a reviewer, developer, or editor find the right explanation without reading every file in sequence.
 
-> **Baseline:** local Python + SQL + React workflow delivered on October 29, 2026. Gemini and Vercel are requested next steps, not current runtime capabilities. This refresh changes documentation only.
+> **Current:** local workflow plus optional Gemini integration, streamed progress, persistent usage and private access are implemented. Live provider/database/production checks remain pending; see the current [roadmap](ROADMAP.md).
 
 ## Choose a reading path
 
@@ -46,3 +46,10 @@
 | Planned | Agreed next work; code and verification are still pending |
 
 When code changes, update its owning document, the phase status, and the validation record together. Keep historical results dated, include verification limits, and commit documentation with the feature it describes.
+
+## Cloud integration guides
+
+- [AI_INTEGRATION.md](AI_INTEGRATION.md): provider configuration, validated research/writing, progress, quota and review semantics.
+- [DEPLOYMENT.md](DEPLOYMENT.md): linked Vercel projects, PostgreSQL migration, private sessions, same-origin API routing and release checklist.
+
+Historical phase 1–7 results and example documents remain dated baseline evidence; they are not live Gemini benchmarks.

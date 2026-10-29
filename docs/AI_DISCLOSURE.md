@@ -1,5 +1,8 @@
 # AI disclosure and reliability
 
+> **Gemini delivery update:** optional source-grounded research, exact-passage writing suggestions, reviewed newsletter generation, progress/history and private single-editor access now exist. Rule-based tools remain available. Submitted sources/draft context are sent to Google only when you request generation. Model output is checked for structure and exact evidence references, not independently verified for truth. Live Gemini and deployment acceptance remain pending. See [AI integration](AI_INTEGRATION.md) and [deployment](DEPLOYMENT.md).
+
+
 **Purpose:** explain how this repository was developed, what its current runtime actually does, where data goes, and which decisions remain the editor's responsibility.
 
 [Documentation guide](README.md) · [Product](PRODUCT.md) · [Architecture](ARCHITECTURE.md) · [Gemini roadmap](ROADMAP.md)
@@ -11,10 +14,10 @@
 | Development | An AI coding assistant implemented the repository following the Python + SQL + React plan |
 | Current research runtime | Python extracts/ranks source sentences and selects topic-based analysis prompts |
 | Current writing runtime | Deterministic rules flag long sentences, filler, and passive-voice candidates |
-| External model calls | None: no Gemini, OpenAI, Ollama, or other LLM client is integrated |
+| External model calls | Optional Google Gemini calls when the editor explicitly requests generation |
 | Next requested work | Gemini cloud generation and Vercel deployment; still pending |
 
-No model key is required, read, or stored by the current implementation. There is no hidden provider fallback or simulated Gemini response. [TESTING.md](TESTING.md) separates recorded local results from unverified deployment assumptions.
+The baseline tools need no model key. Optional Gemini reads a backend-only key from the environment. A failed Gemini request is labeled as a failure; it is never disguised as generated output from a hidden fallback. [TESTING.md](TESTING.md) separates recorded local results from unverified deployment assumptions.
 
 ## Interpreting research output
 
@@ -34,7 +37,7 @@ Selected excerpts can omit context. Three source records can share one publisher
 | --- | --- |
 | Pasted sources and drafts | Browser-to-backend requests, then the configured SQL database |
 | URL-only import | Server requests the submitted public page and extracts text |
-| Draft content | Not sent to any LLM provider |
+| Draft content | Saved draft and relevant source context are sent to Google for requested Gemini writing/newsletters |
 | Export | Saved draft plus source references downloaded as Markdown |
 | Webfonts | CSS can request Google Fonts; system fallback fonts work offline |
 | Analytics | No analytics integration installed |
@@ -53,8 +56,8 @@ Source content is treated as text, not executed as instructions. React does not 
 | Limit | Practical consequence |
 | --- | --- |
 | DNS validation and connection resolution are separate | DNS rebinding is not fully prevented; deploy with restricted network egress |
-| No login or project ownership | This is a protected single-editor baseline, not a public multi-tenant service |
-| Non-atomic version checks | Simultaneous-editor concurrency is not solved |
+| One workspace password, no per-user ownership | Single-editor access; no multi-tenant isolation |
+| PostgreSQL project-row locking and version checks | Prevent stale mutations; collaboration and SQLite concurrent editing are outside scope |
 | Rule-based writing | False positives, missed grammar, changed emphasis, and imperfect sentence boundaries remain possible |
 | No independent verification | Accepted rewrites and cited claims still require editorial review |
 
@@ -71,4 +74,4 @@ There is no automatic mass-accept, publication, semantic fact-checking, or plagi
 
 ## Disclosure required after Gemini integration
 
-Before enabling cloud generation, update this document to identify the provider/model configuration, which source/draft text is transmitted, response retention and usage behavior, failure/fallback labeling, and completed live evaluations. Credentials must remain backend-only. These are future requirements described in [ROADMAP.md](ROADMAP.md), not present capabilities.
+Gemini model configuration is backend-only and configurable. Requested source/draft context is sent to Google; provider retention depends on the account and service terms. The SDK requests store=false, which is not a promise about all provider logging. Validated results and usage metadata are retained in generation_jobs; source/draft content remains in SQL. Failed calls return sanitized errors without a hidden provider fallback. Live response evaluation is pending credentials; see [AI_INTEGRATION.md](AI_INTEGRATION.md).

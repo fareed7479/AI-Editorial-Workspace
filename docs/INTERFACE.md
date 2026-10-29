@@ -1,5 +1,8 @@
 # Landing page and workspace library
 
+> **Gemini delivery update:** optional source-grounded research, exact-passage writing suggestions, reviewed newsletter generation, progress/history and private single-editor access now exist. Rule-based tools remain available. Submitted sources/draft context are sent to Google only when you request generation. Model output is checked for structure and exact evidence references, not independently verified for truth. Live Gemini and deployment acceptance remain pending. See [AI integration](AI_INTEGRATION.md) and [deployment](DEPLOYMENT.md).
+
+
 **Purpose:** explain the interface follow-up added before the Gemini/Vercel implementation phases.
 
 [Documentation guide](README.md) · [Product](PRODUCT.md) · [Architecture](ARCHITECTURE.md) · [Validation](TESTING.md)
@@ -12,7 +15,7 @@
 | Workspace library | [http://127.0.0.1:5173/#/workspace](http://127.0.0.1:5173/#/workspace) | Browse saved projects and preview their material |
 | Editorial desk | Open a project from the library/sidebar | Use the existing research, writing, and comparison tabs |
 
-The landing page keeps the existing cream, forest-green, sage, and serif style. Its paper-and-note illustrations are CSS layouts, not screenshots of actual stored content. Product claims describe currently implemented features; the page does not advertise Gemini as integrated.
+The landing page keeps the existing cream, forest-green, sage, and serif style. Its paper-and-note illustrations are CSS layouts, not screenshots of actual stored content. Product claims describe currently implemented features; the project workspace exposes Gemini controls when the backend is configured.
 
 ## Landing page
 

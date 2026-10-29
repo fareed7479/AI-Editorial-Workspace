@@ -62,6 +62,10 @@ Before phases 8–14, the user requested a landing page in the existing theme an
 
 **Current:** extractive research and deterministic writing run without credentials. Sources are persistent; fictional content is never substituted for a failed import. The UI uses custom CSS/components and tab state rather than Tailwind/shadcn/Router.
 
-**Next:** the user has requested Gemini cloud generation and full Vercel deployment. These requests supersede the earlier decision to defer a model adapter, but they are still planned work. Phases 8–14 are detailed in [ROADMAP.md](ROADMAP.md).
+**Next:** the user has requested Gemini cloud generation and full Vercel deployment. Phases 8–11 now implement the model adapter, evidence/writing validators, progress UI, persistent limits and access controls. Live provider verification remains pending. Phases 8–14 are detailed in [ROADMAP.md](ROADMAP.md).
 
-Authentication, usage limits, cloud credentials, managed PostgreSQL, deployed persistence checks, and real Gemini-response evaluation remain necessary for the cloud product. No MongoDB, Express, Next.js, LangChain, vector database, agents, queues, or Redis was introduced into the baseline.
+Authentication and persistent usage limits are implemented. Cloud credentials, managed PostgreSQL migration, deployed persistence checks and real Gemini-response evaluation remain necessary release gates. No MongoDB, Express, Next.js, LangChain, vector database, agents, queues, or Redis was introduced into the baseline.
+
+## Phases 8–14 delivery update
+
+See [AI integration](AI_INTEGRATION.md) for phase 8 foundation, phase 9 research, phase 10 writing, and phase 11 streaming/usage/access. Phase 12 adds cloud source configuration and linked Vercel projects. Phases 13–14 remain gated by secrets, database provisioning and live verification; the current acceptance table is in [ROADMAP.md](ROADMAP.md). Controlled backend checks: 55 passed.

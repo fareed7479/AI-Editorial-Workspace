@@ -1,5 +1,8 @@
 # Product note
 
+> **Gemini delivery update:** optional source-grounded research, exact-passage writing suggestions, reviewed newsletter generation, progress/history and private single-editor access now exist. Rule-based tools remain available. Submitted sources/draft context are sent to Google only when you request generation. Model output is checked for structure and exact evidence references, not independently verified for truth. Live Gemini and deployment acceptance remain pending. See [AI integration](AI_INTEGRATION.md) and [deployment](DEPLOYMENT.md).
+
+
 **Purpose:** explain who Fieldnotes serves, how its workflow behaves, and why the current scope is deliberately small.
 
 [Documentation guide](README.md) · [Architecture](ARCHITECTURE.md) · [Delivery status](PHASES.md) · [Next phases](ROADMAP.md)
@@ -8,7 +11,7 @@
 
 Fieldnotes helps a newsletter editor collect sources, inspect evidence, develop a research brief, and improve a draft without losing the original. It combines a research desk, writing studio, and comparison view. The editor controls every accepted rewrite and remains responsible for factual meaning and publication.
 
-> **Current product:** a local, single-editor workspace with extractive research and deterministic writing checks. It is not yet a Gemini-powered or publicly deployed service.
+> **Current product:** a single-editor workspace with deterministic tools and optional Gemini research/writing. Cloud production acceptance is pending.
 
 ## User journey
 

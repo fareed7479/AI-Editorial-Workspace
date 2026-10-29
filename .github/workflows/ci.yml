@@ -36,7 +36,7 @@ jobs:
           DATABASE_URL: postgresql+psycopg://editorial:ci_only_password@localhost:5432/editorial
         run: |
           alembic upgrade head
-          python -c 'from app.database import engine; from sqlalchemy import inspect; assert set(inspect(engine).get_table_names()) >= {"projects", "sources", "drafts"}'
+          python -c 'from app.database import engine; from sqlalchemy import inspect; assert set(inspect(engine).get_table_names()) >= {"projects", "sources", "drafts", "generation_jobs", "request_quotas"}'
           alembic downgrade base
           alembic upgrade head
       - run: npm ci --prefix frontend
