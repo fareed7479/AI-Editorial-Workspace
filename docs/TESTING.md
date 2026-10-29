@@ -149,3 +149,11 @@ Both updated protected Vercel builds reached READY, and the frontend HTML return
 ## Login removal verification
 
 54 backend tests passed, including direct read/write access despite legacy password variables, removed login routes, untrusted-origin rejection and the hosted PostgreSQL requirement. TypeScript and production Vite build passed. Desktop browser checks for direct landing-to-workspace access (with no auth requests), Gemini review/error behavior and browser navigation passed. The wider browser run hit timeouts in library/editing flows before the execution environment disconnected. Its full result is unverified; do not report the earlier 14-test baseline as a fresh passing run for this change.
+
+## Neon production verification — October 29, 2026
+
+Current deployment: API dpl_4z7GJxap9TmSDAESyj7SsPsEYAow; frontend dpl_HRBdvAPvuLmzPe3qqX2FsRQQeSPs; both production READY from ae68ae9. Vercel build logs report RELEASE_CORE_OK, RELEASE_ROLLBACK_OK and 54 passed (one existing Starlette/httpx deprecation warning).
+
+The non-AI core check uses migrated Neon through FastAPI TestClient, covering sources/duplicates, research preconditions, briefs, draft save/analyze, accept/reject, originals/revisions, stale versions, export and source-change invalidation. An external transaction with savepoints rolls back diagnostics. Direct deployed health and project reads return HTTP 200; project listing remains empty. Runtime error scan returned no errors for this API deployment.
+
+A fresh full local browser run did not start: stack diagnostics show Python 3.10 blocked in socket.socketpair → asyncio Windows Proactor initialization, before serving requests. Earlier partially completed browser results are not a new passing run. Frontend proxy verification returned a Vercel SSO redirect while the API remains platform-protected. Public release and one-time billable Gemini verification require explicit approval after automatic review rejected those changes. Live model success and complete deployed browser acceptance remain unverified.

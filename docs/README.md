@@ -2,7 +2,7 @@
 
 **Purpose:** help a reviewer, developer, or editor find the right explanation without reading every file in sequence.
 
-> **Current:** local workflow plus optional Gemini integration, streamed progress, persistent usage and direct workspace access are implemented. Live provider/database/production checks remain pending; see the current [roadmap](ROADMAP.md).
+> **Current:** Neon is connected/migrated, both protected production builds are READY, and cloud core checks plus 54 backend tests pass. Public proxy access, real Gemini output and final browser verification remain pending; see [current acceptance](ROADMAP.md).
 
 ## Choose a reading path
 

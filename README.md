@@ -4,7 +4,7 @@
 
 Fieldnotes is a single-editor workspace built with **React + TypeScript, Python + FastAPI, and SQL**. It connects source collection, research assistance, draft editing, revision comparison, and Markdown export in one interface.
 
-> **Current status — October 29, 2026:** local research/editing plus optional Gemini research, writing, newsletter previews, streamed progress, durable usage records and direct workspace access are implemented. Controlled tests pass. Live Gemini, managed PostgreSQL and production deployment still require credential-dependent verification.
+> **Current status — October 29, 2026:** application login is removed. Neon PostgreSQL is connected and migrated. API and frontend production builds are READY; cloud core-workflow checks and 54 backend tests pass. Public frontend-to-API access awaits platform-protection approval; live Gemini output and final browser verification remain unverified.
 
 [Quick start](#quick-start) · [Workflow](#the-editorial-workflow) · [Feature status](#feature-status) · [Documentation](docs/README.md) · [Next phases](docs/ROADMAP.md)
 
@@ -156,4 +156,4 @@ Use ../.venv/bin/python on macOS/Linux. Playwright starts/reuses the frontend an
 
 ## Current release checkpoint
 
-Gemini credentials are configured, but the real request timed out from the execution environment. Both protected Vercel preview builds succeeded; API startup is gated by missing managed PostgreSQL. Connect Neon to fieldnotes-editorial-api (or configure DATABASE_URL), then complete migrations, live generation, production deployment and end-to-end verification. [Deployment record](docs/DEPLOYMENT.md).
+Neon is connected and migrated; both production builds are READY. Direct API health/project reads pass, and the cloud core-workflow check passes with diagnostic writes rolled back. The frontend API proxy is blocked by separate Vercel protection. Live Gemini verification needs an approved one-time run; it is never part of recurring deployment builds. [Deployment record](docs/DEPLOYMENT.md).

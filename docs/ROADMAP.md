@@ -1,25 +1,21 @@
-# Remaining delivery and acceptance
+# Delivery status and remaining acceptance
 
-The local phases 1–7 remain intact. Gemini extends the existing FastAPI/React app; it does not replace its deterministic tools or original/revision history.
+Existing landing, library, research, editing, original/revision history and export behavior remain intact. The app uses React/Vite + FastAPI + SQLAlchemy; no additional agent platform or account system was introduced.
 
-| Phase | Delivered | Verification / remaining gate |
+| Phase | Implemented / verified | Remaining acceptance |
 | --- | --- | --- |
-| 8 — Gemini foundation | Official Python SDK, structured schemas, configurable limits, sanitized failures | Controlled tests pass; live key required |
-| 9 — AI research | Per-source claims, exact excerpt checks, synthesis, uncertainty, contradictions | Controlled evidence checks pass; live editorial evaluation pending |
-| 10 — AI writing | Exact-passage suggestions, numerical safeguards, cited 300–500-word newsletters | Controlled tests pass; live model evaluation pending |
-| 11 — Streaming and usage | Progress stream, persisted jobs, request IDs, daily cap, explicit newsletter apply, direct workspace access | Local API/UI checks; see TESTING.md |
-| 12 — Cloud readiness | PostgreSQL migration, Vercel entrypoint and linked API/web projects | Managed database credentials and cloud migration required |
-| 13 — Deployment | Vercel projects connected to this repository | Both protected preview builds READY; production promotion waits for PostgreSQL and health checks |
-| 14 — Final verification | Isolated browser and API coverage prepared | Live sources → Gemini brief → draft → editing → export still required |
+| 8 — Gemini foundation | Official SDK, configuration, structured schemas, bounded limits and sanitized errors | Successful real provider response |
+| 9 — AI research | Checked source IDs/excerpts, synthesis, uncertainty and contradictions; controlled tests pass | Live editorial evaluation |
+| 10 — AI writing | Exact-passage suggestions and cited newsletter previews; originals preserved | Real model writing/newsletter evaluation |
+| 11 — Streaming and usage | Progress, request history, replay, SQL daily quota and stale-result handling | Deployed streamed result verification |
+| 12 — Cloud readiness | Neon connected, Alembic applied, cloud core workflow and 54 backend tests pass | Confirm isolated preview branching before writable preview use |
+| 13 — Deployment | API and frontend production builds READY | Platform protection blocks frontend proxy; public-release approval required |
+| 14 — Final verification | Cloud SQL/API core checks pass and roll back diagnostics; direct deployed API reads pass | Live Gemini and full deployed browser workflow |
 
-## Owner input needed
+Application login was removed at the owner's request. Legacy password/session variables are ignored. Vercel platform protection remains enabled. Public access would allow anyone who reaches the production site/API to read and edit this shared workspace and consume its AI quota.
 
-The supplied Gemini key is now in the ignored root .env and Vercel backend secret store; live verification timed out. Connect the Neon database to fieldnotes-editorial-api or put its PostgreSQL DATABASE_URL in that same file. Keep passwords/keys out of chat and Git. WORKSPACE_PASSWORD and SESSION_SECRET are backend-only; local generated values must remain private.
+Automatic approval review rejected recurring billable model calls in deployment builds. Recurring checks use migrations, a non-AI rollback-safe workflow check and Pytest only. A separately approved one-time check can make up to three billable Gemini requests. Automatic review also rejected weakening platform protection without explicit approval.
 
-## Completion criteria
+The local browser rerun is blocked before startup by a Windows asyncio socket-pair hang. Earlier browser results remain historical evidence, not fresh deployed acceptance. Do not mark phases 13–14 fully complete until the remaining gates pass.
 
-A phase is not cloud-complete just because its source is committed. Final sign-off requires a real model request, a successful PostgreSQL migration, protected production URLs, persistence across reload/deployment, and the deployed editorial workflow. Preview and production databases must be separate. No automatic transfer or deletion of the existing local SQLite workspace is performed.
-
-[Integration](AI_INTEGRATION.md) · [Deployment](DEPLOYMENT.md) · [Validation](TESTING.md)
-
-> **Access update:** application login/logout and password/session requirements have been removed at the owner’s request. Landing opens the workspace directly. Database requirements and Gemini request limits remain. Platform-level Vercel protection is separate. See [deployment and Neon setup](DEPLOYMENT.md).
+[Deployment](DEPLOYMENT.md) · [AI behavior](AI_INTEGRATION.md) · [Validation](TESTING.md)

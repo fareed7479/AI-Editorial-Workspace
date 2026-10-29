@@ -38,3 +38,7 @@ Controlled verification: 55 backend tests passed, including malformed provider o
 ## Live verification checkpoint
 
 The owner supplied GEMINI_API_KEY and it was saved as a sensitive backend Vercel environment variable. The real SDK smoke request returned the sanitized provider_timeout error; a separate Google endpoint request timed out too. No successful live model response is asserted. All 55 backend assertions use controlled provider responses. Managed PostgreSQL is not yet attached, so production workflow verification remains blocked.
+
+## Current cloud checkpoint
+
+Neon migration and the cloud non-AI API workflow pass; 54 backend tests pass in the Vercel build. Provider configuration is present, but no successful real Gemini response is claimed. Automatic review rejected recurring billable model checks, so normal builds never call Gemini. verify_release.py --live-ai is a manual, separately approved one-time path (up to three billable requests). Vercel protection remains enabled and currently blocks the frontend proxy. Final source → Gemini brief → reviewed draft → edit → export verification is pending.
