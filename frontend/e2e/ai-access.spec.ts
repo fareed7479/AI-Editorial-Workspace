@@ -1,15 +1,14 @@
 import {test,expect} from '@playwright/test';
 
-test('workspace login shows errors, opens the library, and signs out',async({page})=>{
- await page.route('**/api/auth/session',route=>route.fulfill({json:{required:true,authenticated:false}}));
- await page.route('**/api/auth/login',route=>{const valid=route.request().postDataJSON().password==='synthetic-owner-password';return route.fulfill({status:valid?200:401,json:valid?{authenticated:true}:{detail:'Incorrect workspace password.'}});});
- await page.goto('/#/workspace');
- await expect(page.getByLabel('Workspace password')).toBeVisible();
- await page.getByLabel('Workspace password').fill('incorrect');await page.getByRole('button',{name:'Open workspace',exact:true}).click();
- await expect(page.getByRole('alert')).toContainText('Incorrect workspace password.');
- await page.getByLabel('Workspace password').fill('synthetic-owner-password');await page.getByRole('button',{name:'Open workspace',exact:true}).click();
+test('landing opens the workspace without login or auth requests',async({page})=>{
+ const authRequests:string[]=[];
+ page.on('request',request=>{if(request.url().includes('/api/auth/'))authRequests.push(request.url());});
+ await page.goto('/');
+ await page.getByRole('button',{name:'Open workspace',exact:true}).first().click();
  await expect(page.getByRole('heading',{name:'Your project library'})).toBeVisible();
- await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByLabel('Workspace password')).toBeVisible();
+ await expect(page.getByLabel('Workspace password')).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Sign out',exact:true})).toHaveCount(0);
+ expect(authRequests).toEqual([]);
 });
 
 test('Gemini errors preserve text and generated newsletters require explicit review',async({page})=>{

@@ -4,7 +4,7 @@
 
 Fieldnotes is a single-editor workspace built with **React + TypeScript, Python + FastAPI, and SQL**. It connects source collection, research assistance, draft editing, revision comparison, and Markdown export in one interface.
 
-> **Current status — October 29, 2026:** local research/editing plus optional Gemini research, writing, newsletter previews, streamed progress, durable usage records and private workspace access are implemented. Controlled tests pass. Live Gemini, managed PostgreSQL and production deployment still require credential-dependent verification.
+> **Current status — October 29, 2026:** local research/editing plus optional Gemini research, writing, newsletter previews, streamed progress, durable usage records and direct workspace access are implemented. Controlled tests pass. Live Gemini, managed PostgreSQL and production deployment still require credential-dependent verification.
 
 [Quick start](#quick-start) · [Workflow](#the-editorial-workflow) · [Feature status](#feature-status) · [Documentation](docs/README.md) · [Next phases](docs/ROADMAP.md)
 
@@ -52,7 +52,7 @@ No Docker, cloud database, or LLM key is needed for the default local workflow.
 
 ## Enable Gemini
 
-Put your key in the ignored root .env as GEMINI_API_KEY. Keep GEMINI_MODEL configurable. Restart after database changes; refresh the workspace to see key readiness. If WORKSPACE_PASSWORD is set, sign in with that separate password. Gemini tools appear inside each project; research needs three sources, writing needs a saved draft, and newsletters need a saved brief. Review a generated newsletter before choosing Use this draft.
+Put your key in the ignored root .env as GEMINI_API_KEY. Keep GEMINI_MODEL configurable. Restart after database changes; refresh the workspace to see key readiness. The landing page opens the workspace directly; no application login is required. Gemini tools appear inside each project; research needs three sources, writing needs a saved draft, and newsletters need a saved brief. Review a generated newsletter before choosing Use this draft.
 
 See [Gemini behavior](docs/AI_INTEGRATION.md) and [Vercel setup](docs/DEPLOYMENT.md) for exact limits, privacy and remaining release checks. Never put provider credentials in VITE_ variables.
 

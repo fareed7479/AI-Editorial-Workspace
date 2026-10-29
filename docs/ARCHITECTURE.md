@@ -128,11 +128,10 @@ Run the API from backend/ so the default SQLite URL resolves to backend/editoria
 
 ## Gemini and access endpoints
 
-All /api workspace routes require a signed session when a workspace password is configured; hosted startup requires it. Health and auth session/login remain public. Secrets are never returned.
+Workspace API routes no longer require application login. Hosted startup still requires PostgreSQL. Origin checks and no-store API responses remain; anyone who can reach an unprotected deployment shares its workspace access.
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| GET / POST / POST | /api/auth/session, /api/auth/login, /api/auth/logout | Session state, password login, logout |
 | GET | /api/ai/config and /api/ai/usage | Readiness, model and shared daily quota |
 | POST | /api/projects/{id}/ai/generate | UUID, kind and draft version; NDJSON validated progress/result |
 | GET | /api/projects/{id}/ai/jobs and /api/projects/{id}/ai/jobs/{job_id} | Last ten jobs or one persisted result |

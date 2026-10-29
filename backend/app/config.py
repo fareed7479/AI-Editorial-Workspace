@@ -16,8 +16,6 @@ class Settings:
     ai_max_input_chars: int = 80000
     ai_max_output_tokens: int = 8192
     ai_daily_request_limit: int = 20
-    workspace_password: str = field(default="", repr=False)
-    session_secret: str = field(default="", repr=False)
     cors_origins: tuple = ("http://localhost:5173", "http://127.0.0.1:5173")
     cloud: bool = False
 
@@ -45,7 +43,5 @@ def get_settings():
                     ai_max_input_chars=positive("AI_MAX_INPUT_CHARS", 80000, 200000),
                     ai_max_output_tokens=positive("AI_MAX_OUTPUT_TOKENS", 8192, 16000),
                     ai_daily_request_limit=positive("AI_DAILY_REQUEST_LIMIT", 20, 200),
-                    workspace_password=values.get("WORKSPACE_PASSWORD", ""),
-                    session_secret=values.get("SESSION_SECRET", ""),
                     cors_origins=tuple(origin.strip() for origin in values.get("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",") if origin.strip()),
                     cloud=values.get("VERCEL") == "1")

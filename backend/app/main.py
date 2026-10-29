@@ -13,14 +13,13 @@ from .writing import analyze, decide, metrics
 from .serializers import draft_json, project_json
 from .config import get_settings
 from .ai_routes import router as ai_router
-from .auth import router as auth_router, authenticated
 
 
 @asynccontextmanager
 async def lifespan(app):
     settings = get_settings()
-    if settings.cloud and (not settings.database_url.startswith("postgresql+") or len(settings.workspace_password) < 12 or len(settings.session_secret) < 32):
-        raise RuntimeError("Hosted workspace requires PostgreSQL and complete access configuration.")
+    if settings.cloud and not settings.database_url.startswith("postgresql+"):
+        raise RuntimeError("Hosted workspace requires PostgreSQL.")
     # Migrations are the deployment path; create_all is only for zero-setup SQLite.
     if engine.url.drivername.startswith("sqlite"):
         Base.metadata.create_all(engine)
@@ -208,22 +207,17 @@ app.include_router(ai_router)
 @app.middleware("http")
 async def protect_workspace(request: Request, call_next):
     settings = get_settings()
-    if settings.cloud and (not settings.database_url.startswith("postgresql+") or len(settings.workspace_password) < 12 or len(settings.session_secret) < 32):
+    if settings.cloud and not settings.database_url.startswith("postgresql+"):
         return JSONResponse({"detail": "Hosted workspace configuration is incomplete."}, status_code=503)
-    public = {"/api/health", "/api/auth/session", "/api/auth/login"}
     origin = request.headers.get("origin")
     if request.method not in ("GET", "HEAD", "OPTIONS") and origin:
         own_origin = str(request.base_url).rstrip("/")
         if origin not in settings.cors_origins and origin != own_origin:
             return JSONResponse({"detail": "This request origin is not allowed."}, status_code=403)
-    if request.method != "OPTIONS" and request.url.path not in public:
-        if (request.url.path.startswith("/api/") or request.url.path in ("/docs", "/openapi.json")) and not authenticated(request, settings):
-            return JSONResponse({"detail": "Sign in to the workspace to continue."}, status_code=401)
     response = await call_next(request)
     if request.url.path.startswith("/api/"):
         response.headers["Cache-Control"] = "no-store"
     return response
 
-app.include_router(auth_router)
 
 app.add_middleware(CORSMiddleware, allow_origins=list(get_settings().cors_origins), allow_credentials=True, allow_methods=["GET", "POST", "PUT", "DELETE"], allow_headers=["Content-Type"])

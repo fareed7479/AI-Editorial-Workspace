@@ -1,6 +1,6 @@
 # Product note
 
-> **Gemini delivery update:** optional source-grounded research, exact-passage writing suggestions, reviewed newsletter generation, progress/history and private single-editor access now exist. Rule-based tools remain available. Submitted sources/draft context are sent to Google only when you request generation. Model output is checked for structure and exact evidence references, not independently verified for truth. Live Gemini and deployment acceptance remain pending. See [AI integration](AI_INTEGRATION.md) and [deployment](DEPLOYMENT.md).
+> **Gemini delivery update:** optional source-grounded research, exact-passage writing suggestions, reviewed newsletter generation, progress/history and direct workspace access now exist. Rule-based tools remain available. Submitted sources/draft context are sent to Google only when you request generation. Model output is checked for structure and exact evidence references, not independently verified for truth. Live Gemini and deployment acceptance remain pending. See [AI integration](AI_INTEGRATION.md) and [deployment](DEPLOYMENT.md).
 
 
 **Purpose:** explain who Fieldnotes serves, how its workflow behaves, and why the current scope is deliberately small.
@@ -79,3 +79,5 @@ The 300–500-word target guides newsletter length; it is not a save limit. Read
 **Agreed next:** Gemini-powered synthesis and contextual writing, editable newsletter generation, streaming/progress, usage controls, managed PostgreSQL, protected access, and verified Vercel deployment. See [ROADMAP.md](ROADMAP.md) for acceptance criteria.
 
 **Outside the current delivery:** automatic news discovery, scheduled monitoring, automated newsletter publishing, collaboration, independent semantic fact-checking, and native apps. These require additional product decisions; connecting Gemini does not supply them automatically.
+
+> **Access update:** application login/logout and password/session requirements have been removed at the owner’s request. Landing opens the workspace directly. Database requirements and Gemini request limits remain. Platform-level Vercel protection is separate. See [deployment and Neon setup](DEPLOYMENT.md).

@@ -2,7 +2,7 @@
 
 **Purpose:** help a reviewer, developer, or editor find the right explanation without reading every file in sequence.
 
-> **Current:** local workflow plus optional Gemini integration, streamed progress, persistent usage and private access are implemented. Live provider/database/production checks remain pending; see the current [roadmap](ROADMAP.md).
+> **Current:** local workflow plus optional Gemini integration, streamed progress, persistent usage and direct workspace access are implemented. Live provider/database/production checks remain pending; see the current [roadmap](ROADMAP.md).
 
 ## Choose a reading path
 
@@ -53,3 +53,5 @@ When code changes, update its owning document, the phase status, and the validat
 - [DEPLOYMENT.md](DEPLOYMENT.md): linked Vercel projects, PostgreSQL migration, private sessions, same-origin API routing and release checklist.
 
 Historical phase 1–7 results and example documents remain dated baseline evidence; they are not live Gemini benchmarks.
+
+> **Access update:** application login/logout and password/session requirements have been removed at the owner’s request. Landing opens the workspace directly. Database requirements and Gemini request limits remain. Platform-level Vercel protection is separate. See [deployment and Neon setup](DEPLOYMENT.md).

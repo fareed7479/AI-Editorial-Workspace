@@ -7,7 +7,7 @@ export function apiError(detail:unknown):string{
 }
 export async function api<T>(path:string, method='GET', body?:unknown):Promise<T>{
  const response=await fetch(apiBase+'/api'+path,{method,credentials:'include',headers:{'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});
- if(!response.ok){if(response.status===401&&!path.startsWith('/auth/'))window.dispatchEvent(new Event('workspace-session-expired'));const error=await response.json().catch(()=>({detail:'The server could not complete this request.'}));throw new Error(apiError(error.detail));}
+ if(!response.ok){const error=await response.json().catch(()=>({detail:'The server could not complete this request.'}));throw new Error(apiError(error.detail));}
  return response.json();
 }
 export function exportUrl(id:string){return apiBase+'/api/projects/'+id+'/export';}

@@ -1,6 +1,6 @@
 # AI disclosure and reliability
 
-> **Gemini delivery update:** optional source-grounded research, exact-passage writing suggestions, reviewed newsletter generation, progress/history and private single-editor access now exist. Rule-based tools remain available. Submitted sources/draft context are sent to Google only when you request generation. Model output is checked for structure and exact evidence references, not independently verified for truth. Live Gemini and deployment acceptance remain pending. See [AI integration](AI_INTEGRATION.md) and [deployment](DEPLOYMENT.md).
+> **Gemini delivery update:** optional source-grounded research, exact-passage writing suggestions, reviewed newsletter generation, progress/history and direct workspace access now exist. Rule-based tools remain available. Submitted sources/draft context are sent to Google only when you request generation. Model output is checked for structure and exact evidence references, not independently verified for truth. Live Gemini and deployment acceptance remain pending. See [AI integration](AI_INTEGRATION.md) and [deployment](DEPLOYMENT.md).
 
 
 **Purpose:** explain how this repository was developed, what its current runtime actually does, where data goes, and which decisions remain the editor's responsibility.
@@ -56,7 +56,7 @@ Source content is treated as text, not executed as instructions. React does not 
 | Limit | Practical consequence |
 | --- | --- |
 | DNS validation and connection resolution are separate | DNS rebinding is not fully prevented; deploy with restricted network egress |
-| One workspace password, no per-user ownership | Single-editor access; no multi-tenant isolation |
+| No application login or per-user ownership | Reachable deployments share all workspace data and AI quota |
 | PostgreSQL project-row locking and version checks | Prevent stale mutations; collaboration and SQLite concurrent editing are outside scope |
 | Rule-based writing | False positives, missed grammar, changed emphasis, and imperfect sentence boundaries remain possible |
 | No independent verification | Accepted rewrites and cited claims still require editorial review |
@@ -75,3 +75,5 @@ There is no automatic mass-accept, publication, semantic fact-checking, or plagi
 ## Disclosure required after Gemini integration
 
 Gemini model configuration is backend-only and configurable. Requested source/draft context is sent to Google; provider retention depends on the account and service terms. The SDK requests store=false, which is not a promise about all provider logging. Validated results and usage metadata are retained in generation_jobs; source/draft content remains in SQL. Failed calls return sanitized errors without a hidden provider fallback. Live response evaluation is pending credentials; see [AI_INTEGRATION.md](AI_INTEGRATION.md).
+
+> **Access update:** application login/logout and password/session requirements have been removed at the owner’s request. Landing opens the workspace directly. Database requirements and Gemini request limits remain. Platform-level Vercel protection is separate. See [deployment and Neon setup](DEPLOYMENT.md).

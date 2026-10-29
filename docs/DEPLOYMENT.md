@@ -1,55 +1,45 @@
-# Vercel deployment
+# Vercel and Neon setup
 
-## Topology
+## Application flow
 
-Two projects use the same GitHub repository. The Vite site proxies /api to FastAPI so session cookies stay on the browser's site. Secrets remain in the API project. PostgreSQL is durable storage; Vercel's filesystem is not the database.
+Landing → Open workspace → project library → editorial workspace. Application login/logout, session endpoints and password requirements were removed at the owner's request. Legacy WORKSPACE_PASSWORD and SESSION_SECRET variables are ignored and can be removed. Existing data and Gemini request limits are preserved.
 
-| Project | Root | Runtime | State |
-| --- | --- | --- | --- |
-| fieldnotes-editorial-workspace | frontend | Vite, Node 24 build | Linked; protected frontend build READY |
-| fieldnotes-editorial-api | backend | FastAPI, Python 3.12, Mumbai region | Linked; database/environment setup pending |
+Anyone who reaches an unprotected deployment can read/edit the shared workspace and use its AI quota. Vercel platform protection is separate and remains unchanged; its own authentication screen may still appear.
 
-Vercel scope: fareeds-projects-1f497a11. Both projects initially use Vercel Authentication for all deployments. A protected preview is not a public release.
+## Create or connect Neon
 
-## Required configuration
+1. Open https://vercel.com/fareeds-projects-1f497a11 and select fieldnotes-editorial-api.
+2. Open Storage → Create Database (or Browse Marketplace) → Neon. If you already have a Neon database, open that resource and choose Connect Project instead of creating another.
+3. Use the installed Neon integration. Name it fieldnotes-editorial, choose a nearby region (Mumbai if offered), and review/select the Free plan if suitable. Leave optional Auth disabled: this app does not use it.
+4. In Storage → your database → Connect Project, select fieldnotes-editorial-api, not the frontend project.
+5. Select Production. For Preview, enable isolated preview branching rather than sharing writable production data. Leave Production unchecked under Create database branch for deployment.
+6. Leave Custom Prefix empty/default, then click Connect.
+7. In API project → Settings → Environment Variables, confirm DATABASE_URL or POSTGRES_URL is present for Production. DATABASE_URL takes precedence; remove a stale SQLite value if POSTGRES_URL is the intended cloud connection.
+8. Tell the implementation agent the database is connected so migrations and deployment can be verified. Do not paste credentials in chat.
 
-Create managed PostgreSQL (the connected Neon integration is available), then attach it to the API project. Use a separate preview database/branch. Put DATABASE_URL or POSTGRES_URL, GEMINI_API_KEY, GEMINI_MODEL, WORKSPACE_PASSWORD (12+ characters), SESSION_SECRET (32+ characters), and CORS_ORIGINS in the backend environment. Do not prefix credentials with VITE_. Only public API-origin configuration may reach React.
+The integration injects connection variables automatically. For an external Neon account, use its Connect dialog to copy the PostgreSQL URL into a sensitive DATABASE_URL variable on the API project. Preserve sslmode=require. Never expose credentials through VITE_ variables.
 
-For local setup, use the ignored root .env. Settings load backend/.env, root .env, root .env.local, then process variables; the last value wins. Database selection happens at startup, so restart after changing DATABASE_URL. The generated local workspace password is in that file; it is not the Gemini key. Keep all values private.
+## Local use and migration
 
-Default AI cap: 20 requests per UTC day for this single workspace. Failed provider attempts count; cached replay does not. This cap is not a money budget; configure provider billing limits separately if needed.
+For local PostgreSQL, put the intended DATABASE_URL in the ignored root .env. Configuration loads backend/.env, root .env, root .env.local, then process variables (last wins). Restart after changing the database. Existing SQLite data is not automatically copied or deleted.
 
-## Database migration
-
-Run from backend with the intended DATABASE_URL configured:
+Run from backend against the intended database before serving traffic:
 
 ~~~powershell
 ..\.venv\Scripts\python.exe -m alembic upgrade head
 ~~~
 
-Migration 002 only adds generation_jobs and request_quotas, leaving existing projects, sources and drafts intact. Run migrations once before serving a release; they do not run on every function invocation. Never downgrade a live database for a smoke test. The local SQLite database is not automatically uploaded or replaced.
+Use a direct/unpooled URL for migration if required by the provider. Do not downgrade a live database for testing. Existing migrations add tables without clearing content.
 
-## Routing and protection
+## Deployment
 
-frontend/vercel.json proxies /api to the API production domain. The API project domain list confirms fieldnotes-editorial-api.vercel.app as its assigned alias; it will serve the API only after a production deployment. Do not set VITE_API_URL to localhost in production. The same-origin proxy is required for reliable HttpOnly sessions.
+| Project | Root | Runtime | Production domain |
+| --- | --- | --- | --- |
+| fieldnotes-editorial-api | backend | Python 3.12 / FastAPI | fieldnotes-editorial-api.vercel.app |
+| fieldnotes-editorial-workspace | frontend | Vite / Node 24 build | fieldnotes-editorial-workspace.vercel.app |
 
-Once PostgreSQL migration and application login are verified, the API production URL needs to accept the frontend proxy (Vercel Authentication on every API deployment otherwise blocks it). Keep preview deployments protected; use the application's password/session gate for production. Only change platform protection after the application gate works. Configure CORS_ORIGINS to the exact frontend production origin. Production and preview must not share writable data.
+The frontend proxies /api to the API production alias. Keep VITE_API_URL unset in production and configure API CORS_ORIGINS to the exact frontend origin. Existing Vercel protection must allow the proxy before public release; application login removal does not change platform protection. Environment changes need a new deployment.
 
-## Release checks
+After connecting Neon, verify migrations, API health, frontend routing, real Gemini output, source → brief → reviewed newsletter → editing → reload → export, and persistence after redeployment. Earlier protected builds reached READY, but API invocation failed its missing PostgreSQL startup requirement. Live Gemini requests previously timed out. Full production acceptance remains pending.
 
-1. Add backend secrets through the connected Vercel project; redeploy after changing them.
-2. Migrate managed PostgreSQL and verify expected tables.
-3. Deploy API; check /api/health and authenticated project access.
-4. Confirm production alias and frontend rewrite; deploy frontend.
-5. Sign in through the frontend, create disposable sources, generate a real Gemini brief, review a newsletter, apply it, accept/reject writing suggestions, reload and export.
-6. Recheck persistence after redeployment and verify unauthenticated writes are blocked.
-
-Current credential-dependent gates: real Gemini request, managed PostgreSQL migration, API production health and deployed editorial workflow. Do not describe the project as end-to-end deployed until these pass.
-
-## Observed deployment checkpoint
-
-Both phase-12 protected preview builds reached READY from commit 696abc1. Frontend HTML returned HTTP 200 through the connected Vercel account: https://fieldnotes-editorial-workspace-b9axpuy5f.vercel.app/. The API build succeeded, but invoking it returned FUNCTION_INVOCATION_FAILED; runtime logs confirmed the intentional PostgreSQL/access startup guard, not a dependency/import build failure.
-
-Backend production/preview environment entries now include the provided Gemini key, generated workspace password/session secret, model and production CORS origin. Secret values are not recorded here. The Neon integration is installed but has no project attached, and no DATABASE_URL/POSTGRES_URL is attached to the API. Environment changes require a new deployment.
-
-A real Gemini SDK request timed out from the local execution environment; an independent outbound request also timed out. This does not establish an invalid key or successful model output. Retry live verification after database setup, preferably through the deployed backend. Do not claim phases 13–14 complete at this checkpoint.
+Official guide: https://neon.com/docs/guides/vercel-managed-integration.

@@ -20,7 +20,7 @@ export default function AIStudioPanel({project,dirty,onProject,onBusy}:Props){
   const abort=new AbortController();controller.current=abort;
   try{
    const response=await fetch(apiBase+'/api/projects/'+project.id+'/ai/generate',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({request_id:crypto.randomUUID(),kind,version:kind==='brief'?null:project.draft?.version??null}),signal:abort.signal});
-   if(!response.ok){if(response.status===401)window.dispatchEvent(new Event('workspace-session-expired'));const data=await response.json().catch(()=>({detail:'Generation could not start.'}));throw new Error(apiError(data.detail));}
+   if(!response.ok){const data=await response.json().catch(()=>({detail:'Generation could not start.'}));throw new Error(apiError(data.detail));}
    if(!response.body)throw new Error('This browser could not read the generation stream.');
    const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',complete=false;
    function handle(line:string){if(!line.trim())return;const event=JSON.parse(line);if(event.type==='started')setProgress('Gemini is working. Partial output is checked before it is saved.');if(event.type==='progress')setProgress('Receiving Gemini output · '+event.characters.toLocaleString()+' characters');if(event.type==='error')throw new Error(event.message);if(event.type==='complete'){complete=true;if(kind==='newsletter'){setPreview(event.job);setNotice('Newsletter ready to review. Your saved draft has not changed.');}else{onProject(event.project,kind);setNotice(kind==='brief'?'Gemini brief saved with checked source references.':'Gemini suggestions are ready. Your draft is unchanged until you accept them.');}}}

@@ -2,11 +2,10 @@ import {useEffect,useState} from 'react';
 import {ArrowRight,ArrowUpRight,BookOpen,Check,CheckCheck,ChevronRight,Download,FileText,FlaskConical,Layers3,Leaf,LoaderCircle,Plus,Search,ShieldCheck,Sparkles,Trash2,X} from 'lucide-react';
 import Landing from './Landing';
 import AIStudioPanel from './AIStudioPanel';
-import WorkspaceAccess from './WorkspaceAccess';
 import WorkspaceLibrary from './WorkspaceLibrary';
 import SourceReader from './SourceReader';
 import ProjectDialog from './ProjectDialog';
-import {PanelLeftClose,PanelLeftOpen,LogOut} from 'lucide-react';
+import {PanelLeftClose,PanelLeftOpen} from 'lucide-react';
 import {api,exportUrl} from './api';
 import {sampleSources,sampleDraft} from './sample';
 import type {Project,ProjectSummary,Suggestion,Source} from './types';
@@ -26,7 +25,6 @@ function SuggestionCard({item,busy,onDecide}:{item:Suggestion;busy:boolean;onDec
 
 export default function App(){
  const [pendingDemo,setPendingDemo]=useState(false);
- const [access,setAccess]=useState<'checking'|'ready'|'locked'>('checking'),[authRequired,setAuthRequired]=useState(false);
  const [view,setView]=useState(window.location.hash.startsWith('#/workspace')?'workspace':'landing');
  const [focus,setFocus]=useState(false),[reading,setReading]=useState<Source|null>(null);
  const [projects,setProjects]=useState<ProjectSummary[]>([]),[project,setProject]=useState<Project|null>(null),[tab,setTab]=useState<Tab>('research');
@@ -36,11 +34,7 @@ export default function App(){
  async function refresh(){setProjects(await api<ProjectSummary[]>('/projects'));}
  function receive(p:Project){setProject(p);setDraft(p.draft?.current||'');}
  async function task(fn:()=>Promise<void>){setBusy(true);setError('');setNotice('');try{await fn();}catch(e){setError(e instanceof Error?e.message:'Something went wrong.');}finally{setBusy(false);}}
- async function checkAccess(){setAccess('checking');await task(async()=>{try{const state=await api<{required:boolean;authenticated:boolean}>('/auth/session');setAuthRequired(state.required);setAccess(state.authenticated?'ready':'locked');if(state.authenticated){await refresh();if(pendingDemo){setPendingDemo(false);await loadSample();}}}catch(error){setAccess('locked');throw error;}});}
- useEffect(()=>{if(view==='workspace')void checkAccess();},[view]);
- useEffect(()=>{const expired=()=>{setAccess('locked');setError('Your workspace session expired. Sign in to continue; unsaved editor text stays in this tab.');};window.addEventListener('workspace-session-expired',expired);return()=>window.removeEventListener('workspace-session-expired',expired);},[]);
- async function signIn(password:string){await task(async()=>{await api('/auth/login','POST',{password});setAccess('ready');await refresh();if(pendingDemo){setPendingDemo(false);await loadSample();}});}
- async function signOut(){if(!canLeave())return;await task(async()=>{await api('/auth/logout','POST');setProject(null);setDraft('');setAccess('locked');});}
+ useEffect(()=>{if(view!=='workspace')return;if(pendingDemo){setPendingDemo(false);void loadSample();}else void task(async()=>{await refresh();});},[view]);
  useEffect(()=>{const navigate=()=>{const next=window.location.hash.startsWith('#/workspace')?'workspace':'landing';if(next==='landing'&&dirty){if(!window.confirm('Discard unsaved draft changes?')){window.history.replaceState(null,'','#/workspace');return;}setDraft(project?.draft?.current||'');}setView(next);};window.addEventListener('hashchange',navigate);return()=>window.removeEventListener('hashchange',navigate);},[dirty,project]);
  function openLibrary(){if(!canLeave())return;setProject(null);setDraft('');setNotice('');setError('');setReading(null);}
  function enterWorkspace(){window.location.hash='/workspace';}
@@ -55,7 +49,6 @@ export default function App(){
  async function decide(item:Suggestion,action:'accept'|'reject',replacement:string){if(!project?.draft)return;await task(async()=>{receive(await api<Project>('/projects/'+project.id+'/suggestions/'+item.id,'POST',{action,replacement,version:project.draft!.version}));});}
  const pending=project?.draft?.suggestions.filter(s=>s.status==='pending').length||0;
  if(view==='landing')return <Landing onEnter={enterWorkspace} onDemo={()=>{setPendingDemo(true);enterWorkspace();}}/>;
- if(access!=='ready')return <WorkspaceAccess checking={access==='checking'} error={error} onLogin={signIn} onRetry={()=>void checkAccess()}/>;
  return <div className={'app-shell '+(focus?'focus-mode':'')}>
   <aside className="sidebar">
    <a className="brand" href="#/" aria-label="Fieldnotes home" onClick={e=>{if(busy)e.preventDefault();}}><span className="brand-icon"><Leaf size={21}/></span>fieldnotes<span className="brand-period">.</span></a>
@@ -68,7 +61,7 @@ export default function App(){
    <div className="sidebar-bottom"><div className="row"><ShieldCheck size={18}/><strong>Evidence before everything.</strong></div><p>Keep your sources close.<br/>Keep your editorial voice closer.</p><div className="profile"><span className="avatar">ME</span><div>My editorial desk<small>Single-editor workspace</small></div><span className="online-dot"/></div></div>
   </aside>
   <main className="main">
-   <header className="topbar"><div className="row"><button className="icon-button bordered sidebar-toggle" aria-label={focus?'Show sidebar':'Expand workspace'} aria-pressed={focus} onClick={()=>setFocus(!focus)}>{focus?<PanelLeftOpen size={17}/>:<PanelLeftClose size={17}/>}</button><button className="breadcrumb-button" disabled={busy} onClick={openLibrary}>My workspace</button><ChevronRight size={14}/><span>{project?'Editorial desk':'Project library'}</span></div><span className="mode"><span className="online-dot"/>Editorial workspace</span>{authRequired&&<button className="button ghost session-button" disabled={busy} onClick={()=>void signOut()} aria-label="Sign out"><LogOut size={15}/><span>Sign out</span></button>}</header>
+   <header className="topbar"><div className="row"><button className="icon-button bordered sidebar-toggle" aria-label={focus?'Show sidebar':'Expand workspace'} aria-pressed={focus} onClick={()=>setFocus(!focus)}>{focus?<PanelLeftOpen size={17}/>:<PanelLeftClose size={17}/>}</button><button className="breadcrumb-button" disabled={busy} onClick={openLibrary}>My workspace</button><ChevronRight size={14}/><span>{project?'Editorial desk':'Project library'}</span></div><span className="mode"><span className="online-dot"/>Editorial workspace</span></header>
    <div className="page">
     <div className="page-heading"><div><div className="eyebrow">LESS NOISE. MORE SIGNAL.</div><h1>{project?project.title:'My workspace.'}</h1><p className="intro">{project?'From the first source to the final sentence. Your judgment, supported.':'Your sources, drafts, and work in progress. A little easier to find.'}</p></div><div className="heading-actions">{project&&<a className={'button secondary '+(dirty?'disabled':'')} aria-disabled={dirty} href={dirty?undefined:exportUrl(project.id)} download><Download size={16}/>Export</a>}<button className="button" disabled={busy} onClick={()=>setShowNew(true)}><Plus size={17}/>New project</button></div></div>
     {error&&!showNew&&<div className="alert error" role="alert">{error}<button className="icon-button" aria-label="Dismiss error" onClick={()=>setError('')}><X size={16}/></button></div>}

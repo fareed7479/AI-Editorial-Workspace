@@ -1,6 +1,6 @@
 # Landing page and workspace library
 
-> **Gemini delivery update:** optional source-grounded research, exact-passage writing suggestions, reviewed newsletter generation, progress/history and private single-editor access now exist. Rule-based tools remain available. Submitted sources/draft context are sent to Google only when you request generation. Model output is checked for structure and exact evidence references, not independently verified for truth. Live Gemini and deployment acceptance remain pending. See [AI integration](AI_INTEGRATION.md) and [deployment](DEPLOYMENT.md).
+> **Gemini delivery update:** optional source-grounded research, exact-passage writing suggestions, reviewed newsletter generation, progress/history and direct workspace access now exist. Rule-based tools remain available. Submitted sources/draft context are sent to Google only when you request generation. Model output is checked for structure and exact evidence references, not independently verified for truth. Live Gemini and deployment acceptance remain pending. See [AI integration](AI_INTEGRATION.md) and [deployment](DEPLOYMENT.md).
 
 
 **Purpose:** explain the interface follow-up added before the Gemini/Vercel implementation phases.
@@ -76,3 +76,5 @@ Unsaved-draft prompts guard leaving the editor for the library or landing page. 
 | [landing-library.spec.ts](../frontend/e2e/landing-library.spec.ts) | Landing/library desktop and mobile workflow checks |
 
 The backend/schema and dependency lists are unchanged. See [TESTING.md](TESTING.md) for dated results. Gemini and Vercel remain in [ROADMAP.md](ROADMAP.md).
+
+> **Access update:** application login/logout and password/session requirements have been removed at the owner’s request. Landing opens the workspace directly. Database requirements and Gemini request limits remain. Platform-level Vercel protection is separate. See [deployment and Neon setup](DEPLOYMENT.md).

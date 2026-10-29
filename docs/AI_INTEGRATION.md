@@ -31,7 +31,7 @@ Generation jobs persist model, timestamps, status, input fingerprint and provide
 
 Research saves only after evidence checks. Writing adds individually reviewable suggestions without rewriting the draft. Newsletters remain saved previews until Use this draft; applying preserves the original and prior version. Changes during generation prevent stale results from being applied.
 
-Single-editor access uses an eight-hour signed HttpOnly session, constant-time password comparison, origin checks and a shared SQL login-attempt limit. Hosted startup fails closed without PostgreSQL, a strong session secret and a workspace password. This is one private editor workspace, not multi-tenant accounts or collaboration.
+Application login was removed at the owner’s request. The landing page opens the shared workspace directly. Hosted startup requires PostgreSQL; origin checks and SQL-backed AI limits remain. Existing password/session variables are ignored. This is a shared workspace without per-user isolation.
 
 Controlled verification: 55 backend tests passed, including malformed provider output, evidence references, numerical preservation, stale results, quota/replay and authentication. Live provider and deployed verification remain separate gates.
 

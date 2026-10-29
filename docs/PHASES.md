@@ -69,3 +69,5 @@ Authentication and persistent usage limits are implemented. Cloud credentials, m
 ## Phases 8–14 delivery update
 
 See [AI integration](AI_INTEGRATION.md) for phase 8 foundation, phase 9 research, phase 10 writing, and phase 11 streaming/usage/access. Phase 12 adds cloud source configuration and linked Vercel projects. Phases 13–14 remain gated by secrets, database provisioning and live verification; the current acceptance table is in [ROADMAP.md](ROADMAP.md). Controlled backend checks: 55 passed.
+
+> **Access update:** application login/logout and password/session requirements have been removed at the owner’s request. Landing opens the workspace directly. Database requirements and Gemini request limits remain. Platform-level Vercel protection is separate. See [deployment and Neon setup](DEPLOYMENT.md).
