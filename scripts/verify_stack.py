@@ -51,7 +51,7 @@ def verify(api_port, web_port):
                "PYTHONPATH": os.pathsep.join(site.getsitepackages()),
                "PLAYWRIGHT_BASE_URL": f"http://127.0.0.1:{web_port}", "PLAYWRIGHT_EXTERNAL_SERVER": "1"}
         subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], cwd=ROOT / "backend", env=env, check=True)
-        with open(os.devnull, "w") as api_log, open(os.devnull, "w") as web_log:
+        with open(ROOT / "verification-api.log", "w", encoding="utf-8") as api_log, open(ROOT / "verification-web.log", "w", encoding="utf-8") as web_log:
             try:
                 api = subprocess.Popen([getattr(sys, "_base_executable", sys.executable), "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", str(api_port)], cwd=ROOT / "backend", env=env, stdout=api_log, stderr=subprocess.STDOUT)
                 web = subprocess.Popen([node, str(ROOT / "frontend/node_modules/vite/bin/vite.js"), "--host", "127.0.0.1", "--port", str(web_port), "--strictPort"], cwd=ROOT / "frontend", env=env, stdout=web_log, stderr=subprocess.STDOUT)
@@ -74,3 +74,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
