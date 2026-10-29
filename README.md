@@ -1,12 +1,28 @@
-# Fieldnotes · AI Editorial Workspace
+# Fieldnotes | AI Editorial Workspace
 
-An evidence-first research desk and writing studio for a single newsletter editor. React/TypeScript/Vite, Python/FastAPI and SQLAlchemy. PostgreSQL is the deployment database; SQLite provides a zero-service local start. No LLM key is needed.
+**Collect evidence. Develop a brief. Edit with control.**
 
-Dependency versions verified for this delivery are pinned in backend/requirements.lock and frontend/package-lock.json. backend/requirements.txt lists the supported top-level ranges.
+Fieldnotes is a single-editor workspace built with **React + TypeScript, Python + FastAPI, and SQL**. It connects source collection, research assistance, draft editing, revision comparison, and Markdown export in one interface.
 
-## Start locally
+> **Current status — October 29, 2026:** the local workflow is implemented and tested. Research is extractive; writing checks are rule-based. **Gemini integration, streaming, authentication, and Vercel deployment are planned, not implemented.**
 
-Requires Python 3.10+ and Node 22+. From the repository root:
+[Quick start](#quick-start) · [Workflow](#the-editorial-workflow) · [Feature status](#feature-status) · [Documentation](docs/README.md) · [Next phases](docs/ROADMAP.md)
+
+## Quick start
+
+### Existing project setup
+
+If dependencies are already installed, open PowerShell in the repository root:
+
+~~~powershell
+.\scripts\dev.ps1
+~~~
+
+Open **[http://127.0.0.1:5173](http://127.0.0.1:5173)**. Keep the terminal open; press **Ctrl+C** to stop the frontend and let the launcher stop its backend process. The launcher uses ports 5173 and 8000; stop another app using those ports before starting.
+
+### First-time setup on Windows
+
+Requires **Python 3.10+** and **Node.js 22+**:
 
 ~~~powershell
 python -m venv .venv
@@ -15,76 +31,114 @@ npm ci --prefix frontend
 .\scripts\dev.ps1
 ~~~
 
-On macOS/Linux use .venv/bin/python, then sh scripts/dev.sh. Open http://127.0.0.1:5173. The Windows script starts a hidden backend and stops it when the foreground frontend exits. To run separately:
+Use a working Python executable if the Windows python command opens an installation alias. The launcher uses the virtual environment after it has been created.
 
-~~~powershell
-# Terminal 1, from backend/
-..\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
-# Terminal 2, from frontend/
-npm run dev
+### First-time setup on macOS/Linux
+
+~~~sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -r backend/requirements.lock
+npm ci --prefix frontend
+sh scripts/dev.sh
 ~~~
 
-The API is at http://127.0.0.1:8000; interactive API docs are at /docs. SQLite data lives in backend/editorial.db when launched as above. Always launch from backend/ so the same database is used.
+No Docker, cloud database, or LLM key is needed for the default local workflow.
 
-## Walk through the product
+| Address | Purpose |
+| --- | --- |
+| [Frontend](http://127.0.0.1:5173) | Editorial workspace |
+| [API health](http://127.0.0.1:8000/api/health) | Backend/database connectivity |
+| [API documentation](http://127.0.0.1:8000/docs) | Interactive endpoint schemas |
 
-1. Create a project, or open the explicitly fictional sample from the overview.
-2. Add three distinct sources: original URLs with pasted content, pasted articles/tweets without URLs, or URL-only imports. Supply a title and your reliability assessment.
-3. Build the brief. Review attributed excerpts, speculation labels and analysis prompts. Claims are not automatically fact-checked.
-4. Write or paste a draft in the Writing Studio. Save & check writing.
-5. Review long sentences, filler phrases and passive-voice candidates. Edit rewrites before accepting if needed; reject suggestions you do not want. Overlapping suggestions become stale; run checks again.
-6. Compare the immutable original with the current draft and inspect prior versions. Export the saved draft plus source references as Markdown.
+## The editorial workflow
 
-Unsaved drafts are guarded during navigation and page unload. There is no background save. Export uses the saved draft.
+1. **Create a project** or choose **Open sample project** for a fictional demonstration.
+2. **Collect at least three distinct sources.** Paste article, report, or tweet text; optionally retain an original URL. URL-only import is supported where the publisher permits extraction.
+3. **Build a brief.** Review linked excerpts, reported claims, heuristic speculation labels, and editorial analysis prompts.
+4. **Write a draft.** The first saved text becomes the preserved original. There is no background autosave.
+5. **Save & check writing.** Review long sentences, filler phrases, and passive-voice candidates; change a proposed rewrite, accept it, or reject it.
+6. **Compare revisions.** Inspect the original, current version, metrics, and prior saved text. Overlapping edits require fresh checks.
+7. **Export Markdown.** Download the saved draft and source references. Export does not include unsaved editor text.
 
-## Configuration
+Research assistance does not establish whether a claim is true. The editor remains responsible for evidence, technical meaning, and publication decisions.
 
-.env.example lists variables; the file is a reference, not loaded automatically by every command. Set backend environment variables in the terminal, or use uvicorn --env-file ../.env. Put VITE_API_URL in frontend/.env.local if needed. Defaults work without configuration.
+## Feature status
 
-| Variable | Purpose | Default |
+| Area | Available now | Limit or remaining work |
 | --- | --- | --- |
-| DATABASE_URL | SQLAlchemy database URL; use postgresql+psycopg:// for PostgreSQL | sqlite:///./editorial.db |
-| CORS_ORIGINS | Comma-separated exact frontend origins | localhost:5173 and 127.0.0.1:5173 over HTTP |
-| VITE_API_URL | API origin compiled into frontend | http://127.0.0.1:8000 |
-| POSTGRES_PASSWORD | Required for Compose; use a URL-safe strong password | none |
+| Projects | Create, list, search, reopen | No account ownership or collaboration |
+| Sources | Paste/import, classify, remove, reject duplicates | Publisher restrictions; reliability is editor-supplied |
+| Research | Source-linked extracts and what/why/who/angle fields | No LLM synthesis or independent fact-checking |
+| Writing | Three checks and individual accept/reject | Complex rewrites need human review |
+| Revisions | Original preservation, version history, metrics | No transactional simultaneous-editor protocol |
+| Interface | Responsive research, writing, comparison, and state handling | Mobile viewport tested; no native mobile app |
+| Delivery | Tests, CI configuration, dependency locks, containers | Cloud runtime and public deployment unverified |
+| Gemini/Vercel | Agreed next direction | Integration and deployment not started |
 
-For PostgreSQL, from backend/ set DATABASE_URL then run alembic upgrade head before starting. SQLite auto-creates fresh tables; Alembic also supports fresh SQLite databases. Do not run the initial migration on an auto-created SQLite database; use a new database or, only after checking the existing schema matches, alembic stamp head.
+## Project structure
 
-## Container deployment
+| Path | Responsibility |
+| --- | --- |
+| [frontend/](frontend/) | React UI, API client, sample inputs, unit/browser tests |
+| [backend/app/](backend/app/) | FastAPI routes, SQL models, research and writing functions |
+| [backend/migrations/](backend/migrations/) | Alembic schema history |
+| [backend/tests/](backend/tests/) | Controlled API and service tests |
+| [scripts/](scripts/) | Local launchers and real-source sample seeder |
+| [docs/](docs/README.md) | Product, implementation, evidence, examples, and roadmap |
+| [.github/workflows/ci.yml](.github/workflows/ci.yml) | Automated test/build/PostgreSQL checks |
+| [compose.yaml](compose.yaml) | Local container topology; not a Vercel deployment |
 
-Create a root .env with POSTGRES_PASSWORD set, then docker compose up --build. Open http://localhost:8080. API is on localhost:8000; PostgreSQL stays inside Docker with a persistent volume. Exposed services bind to loopback. Migrations run before API startup.
+## Configuration and persistence
 
-This single-editor application has no login. Public hosting requires an authenticated gateway, HTTPS, request limits and restricted outbound networking. Do not expose the write-enabled API directly. Container and live PostgreSQL validation status is recorded in docs/TESTING.md.
+The defaults work without an environment file. [.env.example](.env.example) lists supported variables; the launch script does **not** automatically load a root .env. Set backend variables in the shell, or start Uvicorn with --env-file ../.env. Vite reads frontend/.env.local separately.
 
-## Real-source sample
+| Variable | Used by | Purpose/default |
+| --- | --- | --- |
+| DATABASE_URL | Backend | sqlite:///./editorial.db locally; PostgreSQL uses postgresql+psycopg:// |
+| CORS_ORIGINS | Backend | Exact allowed origins; defaults to HTTP localhost:5173 and 127.0.0.1:5173 |
+| VITE_API_URL | Frontend build/dev | API origin; default http://127.0.0.1:8000 |
+| POSTGRES_PASSWORD | Docker Compose | Required URL-safe password for the container database |
 
-With the API running, execute .venv/Scripts/python.exe scripts/seed_sample.py from the repository root. It creates the dated real-source retrospective using attributed editorial paraphrases; it does not download or invent article text. The in-app sample remains explicitly fictional for repeatable tests.
+Launch the backend from **backend/** so local data consistently uses **backend/editorial.db**. A different working directory can create a different SQLite file. Database files and secrets are ignored by Git.
 
-## Checks
+For PostgreSQL, set DATABASE_URL and run alembic upgrade head from backend/ before serving requests. SQLite auto-creates a fresh local schema. Do not run the initial migration over an auto-created SQLite schema; use a fresh database or, only after confirming an exact schema match, stamp its migration state.
+
+## Tests and build
 
 ~~~powershell
+# From the repository root
 cd backend
 ..\.venv\Scripts\python.exe -m pytest -q
-cd ../frontend
+cd ..\frontend
 npm test
 npm run build
 npx playwright install chromium
-# Start backend first, then:
+# With the backend running in another terminal:
 npm run test:e2e
 ~~~
 
-Playwright starts/reuses the frontend and tests desktop and 390px mobile against the real backend. It uses synthetic sources, never live publisher content. Test-created projects persist in the development database; CI uses a temporary database.
+Use ../.venv/bin/python on macOS/Linux. Playwright starts/reuses the frontend and tests the real API. Test-created projects remain in the selected database; use a disposable database when needed.
+
+**Recorded local results:** 20 backend tests, 2 frontend tests, 4 desktop/mobile browser tests, the production build, and a SQLite migration round trip passed. These are prior implementation results, not tests rerun by this documentation refresh. See [TESTING.md](docs/TESTING.md) for evidence and limits.
+
+## Samples and containers
+
+- **Fictional UI sample:** open it from the overview; no external source fetch is needed.
+- **Real-source retrospective:** read [SAMPLE_NEWSLETTER.md](docs/SAMPLE_NEWSLETTER.md). With the API running, execute .venv/Scripts/python.exe scripts/seed_sample.py from the root. Each run creates a new project using attributed editorial paraphrases.
+- **Docker Compose:** create a root .env containing POSTGRES_PASSWORD, start Docker Desktop, then run docker compose up --build. The proposed local endpoints are http://localhost:8080 and http://localhost:8000. PostgreSQL uses a persistent volume; exposed services bind to loopback. **This container path has not been verified because the Docker engine was unavailable.**
 
 ## Documentation
 
-- [Phase and requirement matrix](docs/PHASES.md)
-- [Product note](docs/PRODUCT.md)
-- [Architecture, schema and API](docs/ARCHITECTURE.md)
-- [AI disclosure and reliability](docs/AI_DISCLOSURE.md)
-- [Actual validation results](docs/TESTING.md)
-- [Real-source newsletter sample](docs/SAMPLE_NEWSLETTER.md)
-- [Before/after example](docs/BEFORE_AFTER.md)
+| Read this | For |
+| --- | --- |
+| [Documentation guide](docs/README.md) | Where to start and how the documents fit together |
+| [Product note](docs/PRODUCT.md) | User journey, scope, and design decisions |
+| [Architecture and API](docs/ARCHITECTURE.md) | Components, persistence, endpoints, and edit behavior |
+| [Phases and requirements](docs/PHASES.md) | Delivered phases, requirement evidence, and commit history |
+| [Testing](docs/TESTING.md) | Actual results, reproduction commands, and gaps |
+| [AI disclosure](docs/AI_DISCLOSURE.md) | Runtime behavior, data flow, safeguards, and limitations |
+| [Newsletter sample](docs/SAMPLE_NEWSLETTER.md) | A dated, sourced editorial example |
+| [Before/after example](docs/BEFORE_AFTER.md) | Review decisions and meaning preservation |
+| [Roadmap](docs/ROADMAP.md) | Planned Gemini and Vercel phases |
 
-## Limits
-
-Research is extractive with deterministic topic-specific editorial prompts, rather than generative synthesis. It cannot establish truth or source independence. Writing rules can flag acceptable prose and miss complex grammar. Passive candidates and some long sentences need a human rewrite. URL import rejects redirects, private/reserved hosts, non-text formats and large responses; publishers can block extraction. Paste text instead. See the disclosure for DNS/egress limits. Local inference and external LLM APIs are not integrated. The sample project is fictional; the separate sourced newsletter is an explicitly dated retrospective.
+**Deployment boundary:** this is a single-editor application without login or AI usage controls. Protect the backend before public exposure. Gemini credentials, managed PostgreSQL, and verified Vercel configuration belong to the next phases.

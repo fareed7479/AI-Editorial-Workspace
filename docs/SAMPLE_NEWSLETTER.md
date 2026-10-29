@@ -1,5 +1,7 @@
 # Open weights, practical questions: evaluating gpt-oss
 
+> **Purpose:** a sourced editorial example, not generated app output. [Guide](README.md) · [Editing example](BEFORE_AFTER.md)
+
 *Retrospective sample about the August 5, 2025 release. Prepared October 29, 2026; this is not this week's news.*
 
 OpenAI released two open-weight language models, gpt-oss-120b and gpt-oss-20b, under the Apache 2.0 license. The announcement describes models that developers can run and customize on their own infrastructure. OpenAI also reports reasoning benchmark results, but those publisher-reported comparisons should not be mistaken for an independent evaluation of your application. [1]
@@ -14,7 +16,7 @@ Keep the first experiment reversible. Record the model version, inference implem
 
 The editorial takeaway is to separate availability from suitability. The announcement, implementation repository and model card explain what the publisher released and how it expects developers to use it. All three come from the same organization, so they do not supply independent corroboration. Before making a production recommendation, seek outside evaluations and test the exact workflow readers care about.
 
-## Sources
+## Sources and provenance
 
 1. [OpenAI announcement, August 5, 2025](https://openai.com/index/introducing-gpt-oss/)
 2. [OpenAI gpt-oss implementation repository](https://github.com/openai/gpt-oss)

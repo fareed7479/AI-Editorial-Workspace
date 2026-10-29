@@ -1,40 +1,109 @@
-# Validation record
+# Testing and validation record
 
-Verified October 29, 2026 on Windows, Python 3.10.0 and Node 24.19.0. Tested dependency snapshots are in backend/requirements.lock and frontend/package-lock.json.
+**Purpose:** distinguish observed results from configured checks and make the local verification workflow reproducible.
 
-| Check | Actual result |
+[Documentation guide](README.md) · [Phase matrix](PHASES.md) · [Architecture](ARCHITECTURE.md) · [Future acceptance criteria](ROADMAP.md)
+
+> **Evidence date:** October 29, 2026. Results below come from the original implementation session. This documentation refresh does not represent a new application test run or prove a successful remote CI/deployment run.
+
+## Recorded environment
+
+| Item | Recorded version/configuration |
 | --- | --- |
-| Backend Pytest | 20 passed in 1.18 seconds |
-| Frontend Vitest | 2 passed |
-| TypeScript + Vite production build | Passed; 1,581 modules transformed |
-| Playwright Chromium 156 desktop 1440 × 1000 | 2 passed |
-| Playwright Chromium 156 mobile viewport 390 × 844 | 2 passed |
-| SQLite Alembic upgrade → downgrade → upgrade | Passed, fresh migration-check database |
-| Live API health | HTTP 200, SQL connectivity, deterministic mode |
-| Real-source sample seed | Created project, three source records, brief and saved draft |
-| Desktop/mobile visual screenshots | Inspected overview layouts; no overflow; writing/compare screenshots also collected by tests |
-| Docker Compose / live PostgreSQL locally | Not run: Docker Desktop engine unavailable |
-| Remote GitHub CI | Configuration committed; no successful CI run claimed |
-| Visible in-app preview handoff | Failed in Codex browser panel; loopback services and automated browser tests worked |
+| Host | Windows |
+| Python | 3.10.0 |
+| Node.js | 24.19.0 |
+| Backend dependencies | [requirements.lock](../backend/requirements.lock); supported top-level ranges in [requirements.txt](../backend/requirements.txt) |
+| Frontend dependencies | [package-lock.json](../frontend/package-lock.json) |
+| Browser | Chromium 156; desktop 1440 × 1000 and mobile viewport 390 × 844 |
+| Local database | SQLite |
 
-## Coverage
+## Results and gaps
 
-API tests exercise project persistence, the three-source gate, source attribution, unverified claims, source deletion and duplicates, original preservation, acceptance and rejection, sequential version conflicts, stale/overlapping suggestion invalidation, offset shifts, human-required passive rewrites and export. Pure-service checks cover three writing rules, empty metrics, speculation tagging and topic-specific analysis prompts.
+| Check | Recorded result | Interpretation |
+| --- | --- | --- |
+| Pytest | 20 passed in 1.18 seconds | API/service checks passed locally |
+| Vitest | 2 passed | Fictional sample provenance, length, and check candidates passed |
+| TypeScript + Vite | Production build passed; 1,581 modules transformed | Compilation/bundling verified |
+| Playwright desktop | 2 passed | Live frontend/API workflow verified |
+| Playwright mobile viewport | 2 passed | Responsive browser workflow verified; not physical-device testing |
+| SQLite migrations | Upgrade → downgrade → upgrade passed on a fresh database | Migration round trip verified locally |
+| API health | HTTP 200; SQL query succeeded | Local backend/database connected |
+| Real-source seed | Project, 3 sources, brief, saved draft created | Seeder exercised successfully |
+| Visual QA | Overview screenshots inspected on desktop/mobile; writing/compare screenshots collected | No overview layout overflow observed |
+| Docker/live PostgreSQL locally | Not run; Docker Desktop engine unavailable | Container and live PostgreSQL runtime remain unverified |
+| Remote CI | Workflow configuration committed | No successful remote run claimed |
+| Visible preview handoff | Codex browser panel failed to open | Loopback services and automated browser tests worked independently |
+| Gemini / Vercel | Not implemented/deployed | No live provider or cloud workflow validation |
 
-Import tests use controlled HTTP responses for success, redirects, non-text types, oversized bodies and insufficient text. DNS is mocked for loopback, private, link-local and IPv6 loopback addresses. No live publisher request is necessary for these tests.
+## What the tests cover
 
-Browser tests use the real React UI and FastAPI/SQLite service: create a project, add pasted sources, build a sample brief, save/check a draft, accept/reject, compare versions, reload persistence, download Markdown and check mobile horizontal overflow. Screenshots are saved inside ignored frontend/test-results and retained in CI artifacts when a test fails. These are mobile viewport tests, not a physical-phone install.
+| Suite | Files | Main checks |
+| --- | --- | --- |
+| Backend API/services | [test_workflow.py](../backend/tests/test_workflow.py), [conftest.py](../backend/tests/conftest.py) | Persistence, 3-source gate, evidence URLs, unverified claims, duplicates/deletion, original/history, accept/reject, stale versions, overlaps/offsets, passive manual review, metrics, speculation/topics, export |
+| Import boundaries | Same backend suite | Redirect rejection, unsupported content, 2 MB limit, short content, valid HTML, private/link-local/loopback/IPv6 addresses |
+| Frontend unit | [sample.test.ts](../frontend/src/sample.test.ts) | 3 distinct explicitly fictional inputs and a 300–500-word draft containing writing-check candidates |
+| Browser workflow | [workflow.spec.ts](../frontend/e2e/workflow.spec.ts) | Source collection, brief, draft checks, decisions, comparison, reload persistence, Markdown download, mobile horizontal overflow |
 
-## Resolved failures
+API fixtures use isolated in-memory SQLite. Browser tests use the running API and its selected database; their created projects persist there. Import tests mock DNS/HTTP responses rather than depending on live publisher pages. Frontend unit tests do not establish broad React component coverage.
 
-- Added lxml_html_clean after source extraction could not import its transitive cleaner.
-- Constrained Pytest to 8.x after the newer runner failed during Windows startup.
-- Corrected accessible-name tab selectors in browser tests.
-- Prevented the filler rule from matching partial words such as in order toad.
-- Named large-response test parameters to avoid Windows environment variable limits in Pytest.
+## Reproduce locally
 
-One upstream Starlette TestClient deprecation warning remains for its HTTPX transport. The tests pass. No warning suppression is installed.
+Install dependencies using the [root setup instructions](../README.md#quick-start). From the repository root:
 
-## Limits
+~~~powershell
+cd backend
+..\.venv\Scripts\python.exe -m pytest -q
+cd ..\frontend
+npm test
+npm run build
+npx playwright install chromium
+~~~
 
-Live PostgreSQL, Docker image builds, HTTPS/public deployment, real mobile hardware and multi-user concurrency are unverified. CI provisions PostgreSQL, migrates up/down/up and runs the browser flows against it. Network import remains subject to publisher restrictions and the DNS-rebinding limitation disclosed in AI_DISCLOSURE.md. The word/sentence heuristics are English-oriented and are not semantic quality measures.
+Start the backend in a separate terminal, from backend/:
+
+~~~powershell
+..\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+~~~
+
+Then run npm run test:e2e from frontend/. Playwright starts or reuses the frontend outside CI. Use ../.venv/bin/python on macOS/Linux. To keep test projects separate, set DATABASE_URL to a disposable database before starting the API.
+
+### SQLite migration check
+
+Use a **new, disposable database path**, from backend/:
+
+~~~powershell
+$env:DATABASE_URL = 'sqlite:///./migration-check.db'
+..\.venv\Scripts\python.exe -m alembic upgrade head
+..\.venv\Scripts\python.exe -m alembic downgrade base
+..\.venv\Scripts\python.exe -m alembic upgrade head
+Remove-Item Env:DATABASE_URL
+~~~
+
+The downgrade removes that database's application tables. Never run this round trip against valuable data. Do not apply the initial migration to an already auto-created local schema without first reconciling its migration state.
+
+## CI configuration and evidence
+
+The [workflow](../.github/workflows/ci.yml) declares Python 3.12/Node 22, a PostgreSQL service, backend tests, PostgreSQL migration/schema checks, frontend tests/build, and browser tests against the PostgreSQL-backed API. This differs from the recorded local Python/Node/SQLite environment and still needs a confirmed remote run.
+
+Screenshots are generated under ignored frontend/test-results. Traces are retained on browser test failure. CI uploads that directory on failure. Generated local evidence is not a tracked, permanent artifact in the repository.
+
+## Failures resolved during implementation
+
+| Failure | Resolution |
+| --- | --- |
+| Extraction dependency could not import its cleaner | Added lxml_html_clean |
+| Newer Pytest failed during Windows startup | Constrained runner to 8.x |
+| Browser tab selectors were too exact | Used accessible-name matching |
+| Filler rule matched a partial word | Added end-boundary handling |
+| Large test parameter exceeded Windows environment limits | Added concise parameter IDs |
+
+One upstream Starlette TestClient/HTTPX deprecation warning remained; tests passed and the warning was not suppressed.
+
+## Documentation refresh validation
+
+The documentation-only refresh on October 29, 2026 checked all 10 Markdown files for local link targets, heading anchors, balanced code fences, and replacement characters. Six PowerShell example blocks parsed successfully without execution. The newsletter article body remained unchanged, and comparison against the pre-refresh GitHub tree confirmed that only Markdown files were modified. No application tests were rerun for these prose changes.
+
+## Outstanding verification
+
+Live PostgreSQL, container builds, remote CI, HTTPS/public deployment, physical phones, simultaneous-editor concurrency, and Gemini generation remain unverified. Model output needs a separate evaluation of evidence, meaning preservation, invalid citations, quota failures, and stale responses after integration; passing existing deterministic tests will not prove those future capabilities.

@@ -1,23 +1,74 @@
 # Product note
 
-Fieldnotes helps a newsletter editor turn a pile of sources into a considered draft. The product is intentionally small: one editor, a project per story, a research desk, a writing studio and a comparison view.
+**Purpose:** explain who Fieldnotes serves, how its workflow behaves, and why the current scope is deliberately small.
 
-## Research decisions
+[Documentation guide](README.md) · [Architecture](ARCHITECTURE.md) · [Delivery status](PHASES.md) · [Next phases](ROADMAP.md)
 
-Sources are explicit records, not disposable prompt text. Require at least three distinct inputs before building a brief, retain original URLs and excerpts, and show editor-supplied reliability. Duplicate URLs and repeated content are rejected. Removing or adding a source invalidates the prior brief so it cannot silently cite outdated inputs.
+## Product in one paragraph
 
-Extractive summaries keep the evidence visible without API keys. Heuristic speculation labels and topic-specific implications remain starting points for judgment. Three inputs do not guarantee three independent sources; the editor must check provenance, dates, conflicts and qualifications.
+Fieldnotes helps a newsletter editor collect sources, inspect evidence, develop a research brief, and improve a draft without losing the original. It combines a research desk, writing studio, and comparison view. The editor controls every accepted rewrite and remains responsible for factual meaning and publication.
 
-## Writing decisions
+> **Current product:** a local, single-editor workspace with extractive research and deterministic writing checks. It is not yet a Gemini-powered or publicly deployed service.
 
-Rules cover long sentences, filler and passive-voice candidates. Each suggestion shows the passage, rationale and proposed text. The editor can change a rewrite, accept it or reject it. Passive clauses cannot be safely rewritten by inventing an actor; these require an explicit human rewrite. Accepting an overlapping suggestion invalidates affected suggestions. The original is immutable; saved versions remain available for inspection. Version checks catch stale sequential requests.
+## User journey
 
-Metrics show words, sentence count, average sentence length, long sentences and estimated reading time. These describe text, not its truth or overall quality. A 300–500 word target is guidance, not a hard save limit.
+| Stage | Editor action | Application response |
+| --- | --- | --- |
+| Start | Create or reopen a project | Persist the project and its source/draft state |
+| Gather | Add article, report, or tweet text; optionally import a URL | Store provenance, content, type, and an editor-selected reliability label |
+| Research | Build after collecting three distinct sources | Return attributed extracts, speculation cues, and what/why/who/angle fields |
+| Draft | Write or paste text, then save | Preserve the first saved text as the original |
+| Review | Run checks and edit/accept/reject suggestions | Apply only reviewed changes; retain prior text and invalidate overlaps |
+| Compare | Open comparison/history | Show saved original/current text and descriptive metrics |
+| Export | Download Markdown | Include the saved draft and source list |
 
-## Deliberate omissions
+The sidebar supports project search and selection. Loading, error, empty, and success states explain progress. Unsaved-change prompts guard project/tab changes and page unload; editing is not automatically saved.
 
-No multi-user collaboration, automated publication, background agents or mandatory LLM integration. No semantic fact-checking, semantic plagiarism detection or generic readability score claimed as a quality verdict. The implemented UI uses custom accessible components and Lucide rather than a shadcn/Router/Tailwind dependency layer; one workspace does not require page routing. This is a documented simplification of the proposed frontend tooling.
+## Implemented capabilities and their limits
 
-## Next improvements
+| Capability | Current behavior | Important qualification |
+| --- | --- | --- |
+| Source collection | Pasted text or public URL import, up to 20 sources | Duplicate checking is based on canonical URL or identical trimmed content, not semantic similarity |
+| Research gate | Requires at least three distinct records | Three records do not establish three independent publishers |
+| Evidence | Exact selected excerpts retain source IDs/titles/URLs | Source claims remain unverified |
+| Reliability | Primary, secondary, or unverified | The editor chooses the label; the app does not investigate credibility |
+| Speculation | Recognizes selected words such as may and might | Heuristics miss context and can misclassify |
+| Editorial perspective | Topic-specific analysis prompts | These are templates, not generative cross-source synthesis |
+| Writing | Long sentences, filler, passive candidates | Rules are English-oriented and do not understand all grammar or nuance |
+| Suggestions | Editable proposal, explanation, accept/reject | Some long/passive rewrites require explicit human input |
+| Revisions | Original plus previous saved text, versioned current draft | History is inspectable; no one-click restore workflow is implemented |
+| Metrics | Word/sentence counts, average length, long sentences, reading time | Counts describe text; they do not prove truth or quality |
+| Responsive UI | Desktop and mobile browser layouts | No installable desktop/mobile app is delivered |
 
-Evaluate extractive briefs on real editorial tasks, add date/source-independence controls, introduce an optional schema-validated model adapter with per-claim evidence, then add authentication and transactional multi-editor concurrency only if deployment needs them.
+## Design decisions
+
+### Evidence remains visible
+
+Sources are persistent records rather than disposable prompt text. A brief links claims to the records that support them. Adding or removing a source clears the prior brief, preventing a stale source set from looking current.
+
+### The editor owns the rewrite
+
+No mass-accept or automatic publication is provided. Filler removal can change emphasis; sentence splitting can alter relationships; passive rewrites can invent an actor. The UI keeps the proposed text editable and the original accessible.
+
+### Small architecture, clear responsibilities
+
+React manages one tab-based workspace. FastAPI owns validation and mutations. SQL stores projects, sources, drafts, and revisions. Custom components and Lucide replace the proposed Tailwind/shadcn/Router layer; this is a documented tooling simplification, not an unfinished page-routing feature.
+
+### Metrics support judgment
+
+The 300–500-word target guides newsletter length; it is not a save limit. Reading time uses 200 words per minute. A shorter sentence or lower word count is not automatically a better editorial result.
+
+## Samples and delivered evidence
+
+| Material | Intended use |
+| --- | --- |
+| Fictional in-app sample | Explore the workflow repeatably without relying on a publisher |
+| [Real-source newsletter](SAMPLE_NEWSLETTER.md) | Review a dated editorial output with explicit provenance |
+| [Before/after example](BEFORE_AFTER.md) | See how reviewed edits preserve qualifications |
+| [Validation record](TESTING.md) | Separate implemented behavior from observed test results |
+
+## Remaining scope
+
+**Agreed next:** Gemini-powered synthesis and contextual writing, editable newsletter generation, streaming/progress, usage controls, managed PostgreSQL, protected access, and verified Vercel deployment. See [ROADMAP.md](ROADMAP.md) for acceptance criteria.
+
+**Outside the current delivery:** automatic news discovery, scheduled monitoring, automated newsletter publishing, collaboration, independent semantic fact-checking, and native apps. These require additional product decisions; connecting Gemini does not supply them automatically.

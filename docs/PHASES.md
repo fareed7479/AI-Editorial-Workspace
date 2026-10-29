@@ -1,37 +1,63 @@
-# Delivery phases and requirement matrix
+# Delivery phases and requirement traceability
 
-Implemented against the recovered Python + SQL + React assignment plan. Scope assumptions and departures are explicit in PRODUCT.md and AI_DISCLOSURE.md.
+**Purpose:** show what phases 1–7 delivered, where each requirement lives, and which completion claims are supported by recorded evidence.
 
-| Phase | Delivered | Verification | Status |
+[Documentation guide](README.md) · [Validation](TESTING.md) · [Remaining phases](ROADMAP.md)
+
+> **Status interpretation:** source delivery is complete for the local baseline. This does **not** mean Gemini, live PostgreSQL, Docker runtime, or Vercel deployment is complete. The requirement matrix is based on the recovered assignment plan; it is not a fresh independent audit of the original assignment PDF.
+
+## Phase-by-phase delivery
+
+| Phase | Work delivered | Evidence | Current status |
 | --- | --- | --- | --- |
-| 1 · Foundation | FastAPI, SQLAlchemy, React/TypeScript/Vite, PostgreSQL/SQLite configuration | Dependency install and production build | Complete |
-| 2 · Research | Persisted projects and article/report/tweet sources, minimum 3, duplicate detection, evidence URLs/excerpts, reliability, speculation, what/why/who/angle | API + extraction boundary tests | Complete, extractive mode |
-| 3 · Writing | Long sentences, filler, passive candidates; passage/explanation/rewrite; accept/reject; originals, revisions, metrics | Backend and live browser flows | Complete |
-| 4 · Workspace | Responsive research/editor/compare views, loading/empty/error states, unsaved guards, export | Desktop and mobile browser workflows and screenshots | Complete |
-| 5 · Verification | Pytest, Vitest, Playwright, CI with PostgreSQL migrations and end-to-end checks | 20 backend + 2 frontend + 4 browser tests pass locally | Local checks complete; remote CI unverified |
-| 6 · Handoff | Setup, product note, architecture, schema/API, AI disclosure, sourced newsletter, before/after and sample seed | 365-word retrospective, sources inspected; seed executed | Complete |
-| 7 · Release | Dependency locks, Docker/Compose, launch scripts, validation record, GitHub commits | Production build and SQLite migration round trip | Source delivery complete; Docker/PostgreSQL runtime unverified locally |
+| 1. Foundation | Python/FastAPI, SQLAlchemy, React/TypeScript/Vite, environment reference, delivery plan | Dependencies installed; production build passed | Implemented |
+| 2. Research | Persistent projects/sources, 3-source gate, linked extracts, reliability, speculation cues, structured prompts | API and controlled extraction tests | Implemented in extractive mode |
+| 3. Writing | Three checks, passage/rationale/rewrite, accept/reject, originals, revisions, metrics | Unit/API and browser workflows | Implemented in deterministic mode |
+| 4. Workspace | Responsive research/writing/compare tabs, state feedback, unsaved guards, export | Desktop/mobile workflows and screenshots | Implemented; local browser verified |
+| 5. Verification | Pytest, Vitest, Playwright, CI with PostgreSQL migration/browser checks | 20 backend + 2 frontend + 4 browser tests locally | Local checks passed; remote CI unverified |
+| 6. Handoff | Product/architecture/API/disclosure docs, real-source newsletter, before/after, sample seeder | Sample seed succeeded; dated 365-word example before sources | Delivered |
+| 7. Release preparation | Dependency locks, launchers, Docker/Compose, validation record | Build and SQLite migration round trip passed | Source prepared; cloud/container runtime unverified |
 
-## Requirement traceability
+## Historical GitHub commits
 
-| Requirement | Implementation | Evidence |
+The initial README bootstrap was followed by a commit for each delivery phase:
+
+| Phase | Commit | What changed |
 | --- | --- | --- |
-| Three or more sources | SourceInput, add_source, build_brief | test_complete_persisted_workflow |
-| Article/URL/tweet input | Source form; optional HTTPX extraction | Browser pasted-source test; controlled import tests |
-| Structured what/why/who/angle | research.py with per-source evidence and analysis fields | Brief API assertions; real sample seed |
-| Original-source links | Source URLs, evidence URLs, Markdown references | API and browser export tests |
-| Fact vs analysis/speculation | source_claim or speculation; verified=false; analysis prompts labeled | test_speculation_and_topic_prompts |
-| Reliability | Editor-supplied primary/secondary/unverified with caveat | Source form and brief disclosure |
-| At least 3 actionable writing checks | writing.py | test_three_checks_and_metrics |
-| Passage, rationale, rewrite, accept/reject | SuggestionCard and decide | Desktop/mobile editing tests |
-| Preserve original and compare | Draft.original, revisions, Compare Revisions | Persistence and accept/reject tests |
-| Useful metrics | Word/sentence counts, average length, long sentences, reading time | Unit and UI displays |
-| Sample 300–500-word editorial output | SAMPLE_NEWSLETTER.md, three linked primary sources | 365 words before source list, including heading/date |
-| Before/after example | BEFORE_AFTER.md | Explicit decisions and preserved qualifications |
-| Documentation and reproducibility | README, PRODUCT, ARCHITECTURE, AI_DISCLOSURE, TESTING, locks, CI, launchers | Actual validation record |
+| Bootstrap | [8e0955d](https://github.com/fareed7479/AI-Editorial-Workspace/commit/8e0955df6ce4408657b26be1e0d308278a20add7) | Initialize repository README |
+| 1 | [91039a8](https://github.com/fareed7479/AI-Editorial-Workspace/commit/91039a8de57b176ecea424254d9ba25679273195) | Foundation and phase plan |
+| 2 | [bef80f4](https://github.com/fareed7479/AI-Editorial-Workspace/commit/bef80f48c59da37a459c7dbbc659546832bfe0a0) | SQL persistence and research services |
+| 3 | [4677e37](https://github.com/fareed7479/AI-Editorial-Workspace/commit/4677e37a8358c2caa819882a64269d063847bfea) | Writing checks, revisions, API |
+| 4 | [8d51049](https://github.com/fareed7479/AI-Editorial-Workspace/commit/8d51049f885ae596edb49b2375b72cf4bdafaad0) | Responsive React workflow |
+| 5 | [a71d483](https://github.com/fareed7479/AI-Editorial-Workspace/commit/a71d483bb0b50bcb6b8bce85e91c68d7c76f4528) | Tests, CI, import/matching refinements |
+| 6 | [9506cd3](https://github.com/fareed7479/AI-Editorial-Workspace/commit/9506cd3af21271110a212e9cc2e7a1a9093ef4fb) | Documentation, examples, validation |
+| 7 | [088f9bc](https://github.com/fareed7479/AI-Editorial-Workspace/commit/088f9bcd1c890eacd5d0ea6794551eec262ad9fa) | Locks, container files, startup scripts |
 
-## Deliberate scope decisions
+Commit history records source changes; it does not by itself demonstrate runtime verification. The current documentation refresh follows this baseline and implements no next-phase functionality.
 
-No mandatory model key: extractive research and deterministic writing functions run locally. Source claims are not verified facts; analysis is an editorial prompt, not a generated conclusion. Pasted source text is first class and no fictional content is substituted for failed imports. The in-app demo is explicitly fictional, while the separate sourced newsletter is an August 2025 retrospective.
+## Requirement matrix
 
-The custom React UI replaces the proposed Tailwind/shadcn/Router layer; this small workspace uses tab state. External LLM adapters, authentication and multi-user editing are not implemented. No MongoDB, Express, Next.js, LangChain, vector database, agents, queues or Redis were introduced. Public API exposure is outside the validated single-editor setup.
+| Requirement | Implementation | Evidence / qualification |
+| --- | --- | --- |
+| At least 3 sources | Source input/routes and build_brief | test_complete_persisted_workflow |
+| Article, URL, report, tweet text | Source form and optional HTTPX import | Browser pasted-source test; controlled import tests; not an X/Twitter integration |
+| What happened / why / who / angle | Per-source evidence and analysis fields in research.py | Extracts and templates; not Gemini synthesis |
+| Original-source references | Source/evidence URL fields and Markdown references | API attribution and browser export checks |
+| Fact vs analysis/speculation | source_claim/speculation, verified=false, labeled analysis | Heuristic classification; no independent fact-checking |
+| Reliability | Editor-supplied primary/secondary/unverified | Source form and brief caveat |
+| 3 actionable writing checks | Long sentences, filler, passive candidates in writing.py | test_three_checks_and_metrics |
+| Passage, reason, proposed rewrite | SuggestionCard and suggestion payload | Browser editing flow; human input required for some rewrites |
+| Accept/reject | decide and version-aware API | API and browser tests |
+| Original preservation and comparison | Draft.original, current, revision JSON, comparison UI | Persistence and editing assertions |
+| Useful metrics | Words, sentences, average length, long sentences, reading time | Unit tests and UI; not semantic quality scores |
+| Newsletter example | [SAMPLE_NEWSLETTER.md](SAMPLE_NEWSLETTER.md) | Real primary sources; dated retrospective, not current-week reporting |
+| Before/after example | [BEFORE_AFTER.md](BEFORE_AFTER.md) | Explained reviewed edits and retained qualifications |
+| Working app/source/docs | Local application, README, technical/product docs, locks, CI | Recorded local checks in [TESTING.md](TESTING.md) |
+
+## Scope decisions and remaining work
+
+**Current:** extractive research and deterministic writing run without credentials. Sources are persistent; fictional content is never substituted for a failed import. The UI uses custom CSS/components and tab state rather than Tailwind/shadcn/Router.
+
+**Next:** the user has requested Gemini cloud generation and full Vercel deployment. These requests supersede the earlier decision to defer a model adapter, but they are still planned work. Phases 8–14 are detailed in [ROADMAP.md](ROADMAP.md).
+
+Authentication, usage limits, cloud credentials, managed PostgreSQL, deployed persistence checks, and real Gemini-response evaluation remain necessary for the cloud product. No MongoDB, Express, Next.js, LangChain, vector database, agents, queues, or Redis was introduced into the baseline.
