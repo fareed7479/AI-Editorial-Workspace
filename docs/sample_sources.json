@@ -1,0 +1,23 @@
+[
+  {
+    "title": "OpenAI gpt-oss announcement · 2025-08-05",
+    "url": "https://openai.com/index/introducing-gpt-oss/",
+    "kind": "article",
+    "reliability": "primary",
+    "content": "Editorial notes, paraphrased from the primary source inspected October 29, 2026: OpenAI announced gpt-oss-120b and gpt-oss-20b on August 5, 2025 under the Apache 2.0 license. The publisher reports reasoning benchmark results and describes running and customizing these open-weight models on user-managed infrastructure. These are publisher claims, not an independent evaluation."
+  },
+  {
+    "title": "OpenAI gpt-oss repository",
+    "url": "https://github.com/openai/gpt-oss",
+    "kind": "report",
+    "reliability": "primary",
+    "content": "Editorial notes, paraphrased from the primary repository inspected October 29, 2026: The documentation requires the Harmony response format for correct model use. It describes low, medium and high reasoning settings. Deployment examples and quantization details are supplied by the model publisher. The repository is not an independent benchmark."
+  },
+  {
+    "title": "OpenAI gpt-oss-20b model card",
+    "url": "https://huggingface.co/openai/gpt-oss-20b",
+    "kind": "report",
+    "reliability": "primary",
+    "content": "Editorial notes, paraphrased from the primary model card inspected October 29, 2026: The smaller model has 21 billion total parameters and 3.6 billion active parameters. The publisher says quantized weights fit within 16 GB of memory. This is a conditional publisher hardware claim rather than a guarantee of latency or reliability on arbitrary devices."
+  }
+]
