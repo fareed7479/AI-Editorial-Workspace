@@ -43,3 +43,5 @@ The frontend proxies /api to the API production alias. Keep VITE_API_URL unset i
 After connecting Neon, verify migrations, API health, frontend routing, real Gemini output, source → brief → reviewed newsletter → editing → reload → export, and persistence after redeployment. Earlier protected builds reached READY, but API invocation failed its missing PostgreSQL startup requirement. Live Gemini requests previously timed out. Full production acceptance remains pending.
 
 Official guide: https://neon.com/docs/guides/vercel-managed-integration.
+
+Latest frontend verification: production build dpl_DZfWsDN9YNfKzdgMJubWGa86L7YE reached READY from ade4cc7, with 2 Vitest tests and TypeScript/Vite build passing. Public access is still intentionally blocked pending explicit owner approval after automatic review. Approval is also required for the one-time live Gemini generations; recurring deployment checks remain non-AI.
