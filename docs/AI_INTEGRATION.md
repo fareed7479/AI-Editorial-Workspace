@@ -14,3 +14,7 @@ This document records phases 8–14 as they are implemented. Existing landing, l
 Live Gemini validation requires the user's key. A foundation implementation is not a claim that a real provider request or deployment has passed. Later sections will record research/writing persistence, UI, usage controls and actual verification.
 
 Official references: [Python SDK](https://googleapis.github.io/python-genai/), [models](https://ai.google.dev/gemini-api/docs/models), [structured outputs](https://ai.google.dev/gemini-api/docs/structured-output).
+
+## Phase 9: source-grounded research
+
+Research conversion requires one summary per submitted source, exact supporting excerpts and known source IDs. Titles, URLs and reliability labels come from stored records rather than model output. Synthesis, uncertainty and evidence-backed contradictions remain explicitly editorial interpretation. Five controlled research tests passed; real Gemini output still requires live evaluation. Request routing/persistence is connected in phase 11.
