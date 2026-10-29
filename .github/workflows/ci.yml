@@ -1,0 +1,65 @@
+name: Editorial workspace checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: editorial
+          POSTGRES_PASSWORD: ci_only_password
+          POSTGRES_DB: editorial
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U editorial"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: pip install -r backend/requirements.txt
+      - name: Backend unit and API tests
+        working-directory: backend
+        run: python -m pytest -q
+      - name: PostgreSQL migration smoke test
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql+psycopg://editorial:ci_only_password@localhost:5432/editorial
+        run: |
+          alembic upgrade head
+          python -c 'from app.database import engine; from sqlalchemy import inspect; assert set(inspect(engine).get_table_names()) >= {"projects", "sources", "drafts"}'
+          alembic downgrade base
+          alembic upgrade head
+      - run: npm ci --prefix frontend
+      - run: npm test --prefix frontend
+      - run: npm run build --prefix frontend
+      - run: npx playwright install --with-deps chromium
+        working-directory: frontend
+      - name: Start API against PostgreSQL
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql+psycopg://editorial:ci_only_password@localhost:5432/editorial
+        run: |
+          python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 > /tmp/editorial-api.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail http://127.0.0.1:8000/api/health; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/editorial-api.log
+          exit 1
+      - run: npm run test:e2e
+        working-directory: frontend
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-test-evidence
+          path: frontend/test-results

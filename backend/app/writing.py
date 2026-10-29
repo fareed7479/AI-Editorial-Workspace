@@ -23,7 +23,7 @@ def suggestion(kind, text, start, end, replacement, explanation, manual=False):
 def analyze(text):
     findings = []
     for phrase, replacement in FILLERS.items():
-        for match in re.finditer(r"\b" + re.escape(phrase), text, flags=re.I):
+        for match in re.finditer(r"\b" + re.escape(phrase) + (r"\b" if phrase[-1].isalnum() else ""), text, flags=re.I):
             rewritten = replacement.capitalize() if match.group()[0].isupper() else replacement
             findings.append(suggestion("Filler phrase", text, match.start(), match.end(), rewritten,
                                        "Shorten this phrase. Check that the emphasis still matches your meaning."))

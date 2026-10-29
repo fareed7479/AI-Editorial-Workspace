@@ -1,0 +1,37 @@
+import {test,expect} from '@playwright/test';
+test('research to writing, accept/reject, persistence and export',async({page})=>{
+ await page.goto('/');
+ await page.screenshot({path:test.info().outputPath('overview.png'),fullPage:true});
+ await page.getByRole('button',{name:'Open sample project'}).click();
+ await expect(page.getByText('Fictional sample loaded.',{exact:false})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Your research brief'})).toBeVisible();
+ await page.getByRole('button',{name:/Writing studio/}).click();
+ await page.getByRole('button',{name:'Save & check writing'}).click();
+ await expect(page.getByText('Checks complete.',{exact:false})).toBeVisible();
+ await page.screenshot({path:test.info().outputPath('writing.png'),fullPage:true});
+ const filler=page.locator('.suggestion').filter({has:page.getByText('Filler phrase',{exact:true})}).first();
+ await filler.getByRole('button',{name:'Accept',exact:true}).click();
+ await expect(filler.getByText('accepted',{exact:true})).toBeVisible();
+ const pending=page.locator('.suggestion').filter({has:page.getByRole('button',{name:'Reject',exact:true})}).first();
+ await pending.getByRole('button',{name:'Reject',exact:true}).click();
+ await expect(page.getByText('rejected',{exact:true}).first()).toBeVisible();
+ await page.getByRole('button',{name:/Compare revisions/}).click();
+ await expect(page.getByText('THE ORIGINAL',{exact:true})).toBeVisible();
+ await expect(page.getByText('CURRENT · VERSION 2',{exact:true})).toBeVisible();
+ await page.screenshot({path:test.info().outputPath('compare.png'),fullPage:true});
+ const download=page.waitForEvent('download');await page.getByRole('link',{name:'Export',exact:true}).click();expect((await download).suggestedFilename()).toBe('editorial.md');
+ await page.reload();
+ await page.getByRole('button',{name:/Local models: beyond the headline/}).first().click();
+ await page.getByRole('button',{name:/Compare revisions/}).click();
+ await expect(page.getByText('CURRENT · VERSION 2',{exact:true})).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+});
+test('create a project and add pasted sources with validation',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'New project',exact:true}).last().click();
+ await page.getByRole('textbox',{name:'Project title'}).fill('A fresh research project');await page.getByRole('button',{name:'Create project'}).click();
+ await expect(page.getByRole('button',{name:'Build brief',exact:true})).toBeDisabled();
+ await page.getByRole('button',{name:'Add your first source'}).click();
+ await page.getByLabel('Source title').fill('Pasted research');await page.getByLabel('Article or tweet text').fill('A first source with sufficient details for a controlled research test.');
+ await page.getByRole('button',{name:'Save source'}).click();await expect(page.getByRole('heading',{name:'Pasted research'})).toBeVisible();
+ await page.getByRole('button',{name:/Writing studio/}).click();await page.getByRole('textbox',{name:'Newsletter draft'}).fill('We really want a clear story in order to help readers.');await page.getByRole('button',{name:'Save & check writing'}).click();await expect(page.getByText('Checks complete.',{exact:false})).toBeVisible();
+});

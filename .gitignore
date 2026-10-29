@@ -9,3 +9,6 @@ __pycache__/
 playwright-report/
 test-results/
 coverage/
+*.log
+*.tsbuildinfo
+.env.local
