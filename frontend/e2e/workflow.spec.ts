@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 test('research to writing, accept/reject, persistence and export',async({page})=>{
- await page.goto('/');
+ await page.goto('/#/workspace');
  await page.screenshot({path:test.info().outputPath('overview.png'),fullPage:true});
  await page.getByRole('button',{name:'Open sample project'}).click();
  await expect(page.getByText('Fictional sample loaded.',{exact:false})).toBeVisible();
@@ -27,7 +27,7 @@ test('research to writing, accept/reject, persistence and export',async({page})=
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
 });
 test('create a project and add pasted sources with validation',async({page})=>{
- await page.goto('/');await page.getByRole('button',{name:'New project',exact:true}).last().click();
+ await page.goto('/#/workspace');await page.getByRole('button',{name:'New project',exact:true}).last().click();
  await page.getByRole('textbox',{name:'Project title'}).fill('A fresh research project');await page.getByRole('button',{name:'Create project'}).click();
  await expect(page.getByRole('button',{name:'Build brief',exact:true})).toBeDisabled();
  await page.getByRole('button',{name:'Add your first source'}).click();

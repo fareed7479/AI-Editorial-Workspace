@@ -35,6 +35,10 @@ The initial README bootstrap was followed by a commit for each delivery phase:
 
 Commit history records source changes; it does not by itself demonstrate runtime verification. The current documentation refresh follows this baseline and implements no next-phase functionality.
 
+## Workspace interface follow-up
+
+Before phases 8–14, the user requested a landing page in the existing theme and more space for workspace material. This follow-up adds a separate landing page, searchable/sortable grid and list library, saved-material previews, full-source reading, modal project creation, and an expandable editorial workspace. It does not implement Gemini or deployment. Details: [INTERFACE.md](INTERFACE.md); observed checks: [TESTING.md](TESTING.md).
+
 ## Requirement matrix
 
 | Requirement | Implementation | Evidence / qualification |

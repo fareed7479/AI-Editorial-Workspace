@@ -8,7 +8,7 @@
 
 | Your goal | Read in this order |
 | --- | --- |
-| Run and explore the app | [Root README](../README.md), then [Product](PRODUCT.md) |
+| Run and explore the app | [Root README](../README.md), then [Interface](INTERFACE.md) and [Product](PRODUCT.md) |
 | Review implementation completeness | [Phases](PHASES.md), then [Testing](TESTING.md) |
 | Understand or change code | [Architecture](ARCHITECTURE.md), then [AI disclosure](AI_DISCLOSURE.md) |
 | Review editorial output | [Newsletter](SAMPLE_NEWSLETTER.md), then [Before/after](BEFORE_AFTER.md) |
@@ -19,6 +19,7 @@
 | File | What it explains | What it does not claim |
 | --- | --- | --- |
 | [README.md](../README.md) | Setup, daily workflow, configuration, repository map | That a local build is a live cloud deployment |
+| [INTERFACE.md](INTERFACE.md) | Landing, project library, preview/reading controls | Laptop file browsing or cloud AI integration |
 | [PRODUCT.md](PRODUCT.md) | User needs, supported actions, design decisions, scope | That every proposed feature is implemented |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Modules, schema, requests, edit lifecycle, operations | Transactional multi-user support |
 | [PHASES.md](PHASES.md) | Phases 1–7, requirement traceability, source history | Completion of future Gemini/Vercel work |

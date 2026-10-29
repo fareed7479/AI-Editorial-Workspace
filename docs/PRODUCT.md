@@ -24,6 +24,10 @@ Fieldnotes helps a newsletter editor collect sources, inspect evidence, develop 
 
 The sidebar supports project search and selection. Loading, error, empty, and success states explain progress. Unsaved-change prompts guard project/tab changes and page unload; editing is not automatically saved.
 
+## Landing and browsing follow-up
+
+A separate themed landing page now leads into a project library with search, filters, sorting, grid/list views, and real saved-material previews. Native dialogs support project creation and full-source reading. A sidebar toggle expands the editorial space. These are local UI improvements delivered before the remaining cloud phases; see [INTERFACE.md](INTERFACE.md).
+
 ## Implemented capabilities and their limits
 
 | Capability | Current behavior | Important qualification |

@@ -26,6 +26,10 @@ The UI calls /api endpoints on the configured API origin. FastAPI reads/writes S
 - **Extraction:** HTTPX, Trafilatura, and BeautifulSoup.
 - **Verification:** Pytest/HTTPX, Vitest, and Playwright; see [TESTING.md](TESTING.md).
 
+## Landing and workspace view state
+
+The root URL renders Landing.tsx; #/workspace selects the workspace without a routing dependency. Hash changes support browser navigation and guard unsaved draft text. WorkspaceLibrary.tsx reuses GET /api/projects and GET /api/projects/{id} for browsing and previews, so the SQL schema and backend API are unchanged. SourceReader.tsx and ProjectDialog.tsx use native modal dialogs. The existing App.tsx still owns editing and saved project state. See [INTERFACE.md](INTERFACE.md).
+
 ## Relational model
 
 IDs are generated UUID strings stored in string columns. The database has three application tables:

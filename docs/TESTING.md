@@ -4,7 +4,24 @@
 
 [Documentation guide](README.md) · [Phase matrix](PHASES.md) · [Architecture](ARCHITECTURE.md) · [Future acceptance criteria](ROADMAP.md)
 
-> **Evidence date:** October 29, 2026. Results below come from the original implementation session. This documentation refresh does not represent a new application test run or prove a successful remote CI/deployment run.
+> **Evidence date:** October 29, 2026. Results below come from the original implementation session. The documentation refresh itself did not rerun the app tests; the subsequent UI follow-up is recorded separately below. No successful remote CI/deployment run is claimed.
+
+## Landing/library follow-up — October 29, 2026
+
+After the documentation refresh, the interface was extended with a landing page, searchable grid/list project library, saved-material previews, native dialogs, full-source reading, and an expandable editor.
+
+| Follow-up check | Observed result |
+| --- | --- |
+| Frontend Vitest | Existing 2 tests passed |
+| TypeScript + Vite production build | Passed after the final source change; 1,586 modules transformed |
+| Full desktop/mobile Playwright suite | 10 passed in 43.9 seconds after list-preview labeling and mobile overflow fixes |
+| Final preview auto-scroll refinement | Affected desktop/mobile preview cases rechecked: 2 passed in 18.6 seconds |
+| Visual review | Desktop landing and project library screenshots inspected; mobile illustration overflow fixed and viewport assertion passed |
+| Visible preview handoff | Browser panel could not open; existing local services returned successful responses and browser tests worked |
+
+Coverage now includes landing-to-workspace/back navigation, project search/filter/sort, grid/list selection, no-results reset, actual saved source/brief/draft previews, complete source text, Escape dismissal, preview visibility, wider editor mode, and cancelled unsaved-draft navigation. Original research/editing/export flows also passed. The existing running local API/frontend were reused; backend code, database schema, and dependency lists were unchanged. Backend tests were not rerun for this UI-only follow-up. Test-created projects remain in the selected local database.
+
+The original baseline record below is retained as historical evidence. Gemini, cloud database/deployment, and remote CI verification limits remain unchanged.
 
 ## Recorded environment
 

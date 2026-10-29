@@ -18,7 +18,7 @@ If dependencies are already installed, open PowerShell in the repository root:
 .\scripts\dev.ps1
 ~~~
 
-Open **[http://127.0.0.1:5173](http://127.0.0.1:5173)**. Keep the terminal open; press **Ctrl+C** to stop the frontend and let the launcher stop its backend process. The launcher uses ports 5173 and 8000; stop another app using those ports before starting.
+Open **[http://127.0.0.1:5173](http://127.0.0.1:5173)**. The root URL opens the landing page; choose **Open workspace**, or go directly to [the project library](http://127.0.0.1:5173/#/workspace). Keep the terminal open; press **Ctrl+C** to stop the frontend and let the launcher stop its backend process. The launcher uses ports 5173 and 8000; stop another app using those ports before starting.
 
 ### First-time setup on Windows
 
@@ -52,7 +52,7 @@ No Docker, cloud database, or LLM key is needed for the default local workflow.
 
 ## The editorial workflow
 
-1. **Create a project** or choose **Open sample project** for a fictional demonstration.
+1. **Open the workspace** from the landing page, then **create a project** or choose **Open sample project** for a fictional demonstration.
 2. **Collect at least three distinct sources.** Paste article, report, or tweet text; optionally retain an original URL. URL-only import is supported where the publisher permits extraction.
 3. **Build a brief.** Review linked excerpts, reported claims, heuristic speculation labels, and editorial analysis prompts.
 4. **Write a draft.** The first saved text becomes the preserved original. There is no background autosave.
@@ -61,6 +61,10 @@ No Docker, cloud database, or LLM key is needed for the default local workflow.
 7. **Export Markdown.** Download the saved draft and source references. Export does not include unsaved editor text.
 
 Research assistance does not establish whether a claim is true. The editor remains responsible for evidence, technical meaning, and publication decisions.
+
+## Landing page and project library
+
+The landing page introduces the app in the existing Fieldnotes theme. My workspace now provides searchable, sortable grid/list views, source-count filters, and previews of saved sources, briefs, and drafts. Full-source reading and a sidebar toggle provide more room for reviewing material. See [the interface walkthrough](docs/INTERFACE.md).
 
 ## Feature status
 
@@ -119,7 +123,7 @@ npm run test:e2e
 
 Use ../.venv/bin/python on macOS/Linux. Playwright starts/reuses the frontend and tests the real API. Test-created projects remain in the selected database; use a disposable database when needed.
 
-**Recorded local results:** 20 backend tests, 2 frontend tests, 4 desktop/mobile browser tests, the production build, and a SQLite migration round trip passed. These are prior implementation results, not tests rerun by this documentation refresh. See [TESTING.md](docs/TESTING.md) for evidence and limits.
+**Recorded local results:** 20 backend tests, 2 frontend tests, 4 desktop/mobile browser tests, the production build, and a SQLite migration round trip passed. The landing/library follow-up additionally passed 10 browser tests, the 2 existing frontend tests, and the production build; its final preview refinement was rechecked on desktop/mobile. Backend counts are retained from the original baseline. See [TESTING.md](docs/TESTING.md) for evidence and limits.
 
 ## Samples and containers
 
@@ -132,6 +136,7 @@ Use ../.venv/bin/python on macOS/Linux. Playwright starts/reuses the frontend an
 | Read this | For |
 | --- | --- |
 | [Documentation guide](docs/README.md) | Where to start and how the documents fit together |
+| [Landing and library](docs/INTERFACE.md) | Navigation, project previews, and full-source reading |
 | [Product note](docs/PRODUCT.md) | User journey, scope, and design decisions |
 | [Architecture and API](docs/ARCHITECTURE.md) | Components, persistence, endpoints, and edit behavior |
 | [Phases and requirements](docs/PHASES.md) | Delivered phases, requirement evidence, and commit history |
