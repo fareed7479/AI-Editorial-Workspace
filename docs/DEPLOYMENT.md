@@ -45,3 +45,11 @@ Once PostgreSQL migration and application login are verified, the API production
 6. Recheck persistence after redeployment and verify unauthenticated writes are blocked.
 
 Current credential-dependent gates: real Gemini request, managed PostgreSQL migration, API production health and deployed editorial workflow. Do not describe the project as end-to-end deployed until these pass.
+
+## Observed deployment checkpoint
+
+Both phase-12 protected preview builds reached READY from commit 696abc1. Frontend HTML returned HTTP 200 through the connected Vercel account: https://fieldnotes-editorial-workspace-b9axpuy5f.vercel.app/. The API build succeeded, but invoking it returned FUNCTION_INVOCATION_FAILED; runtime logs confirmed the intentional PostgreSQL/access startup guard, not a dependency/import build failure.
+
+Backend production/preview environment entries now include the provided Gemini key, generated workspace password/session secret, model and production CORS origin. Secret values are not recorded here. The Neon integration is installed but has no project attached, and no DATABASE_URL/POSTGRES_URL is attached to the API. Environment changes require a new deployment.
+
+A real Gemini SDK request timed out from the local execution environment; an independent outbound request also timed out. This does not establish an invalid key or successful model output. Retry live verification after database setup, preferably through the deployed backend. Do not claim phases 13–14 complete at this checkpoint.

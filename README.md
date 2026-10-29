@@ -153,3 +153,7 @@ Use ../.venv/bin/python on macOS/Linux. Playwright starts/reuses the frontend an
 | [Roadmap](docs/ROADMAP.md) | Gemini/Vercel delivery status and remaining gates |
 
 **Deployment boundary:** this is a single-editor application without login or AI usage controls. Protect the backend before public exposure. Gemini credentials, managed PostgreSQL, and verified Vercel configuration belong to the next phases.
+
+## Current release checkpoint
+
+Gemini credentials are configured, but the real request timed out from the execution environment. Both protected Vercel preview builds succeeded; API startup is gated by missing managed PostgreSQL. Connect Neon to fieldnotes-editorial-api (or configure DATABASE_URL), then complete migrations, live generation, production deployment and end-to-end verification. [Deployment record](docs/DEPLOYMENT.md).

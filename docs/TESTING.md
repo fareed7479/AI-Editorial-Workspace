@@ -143,3 +143,5 @@ Run isolated browser verification from the repository root:
 Live Gemini responses, managed PostgreSQL migration, production session/proxy behavior and persistence after redeployment remain unverified. A protected frontend preview is only a build check, not the complete deployed workflow.
 
 The protected Vercel frontend build reached READY. Its initial audit flagged legacy Vitest/mock worker dependencies; Vitest was updated to 5.0.5 with compatible Vite 6.4.5, and the subsequent npm install audit reported zero vulnerabilities. Test runner remains limited to one worker. This tooling update does not change the application interface.
+
+Both updated protected Vercel builds reached READY, and the frontend HTML returned HTTP 200. API invocation reached the configured startup guard and failed because PostgreSQL/access prerequisites were absent from that deployment. Generated access credentials and the owner-provided Gemini key have since been placed in the backend environment; PostgreSQL is still missing. The live Gemini SDK smoke check returned provider_timeout; an independent Google endpoint request also timed out. Neither check establishes provider success.

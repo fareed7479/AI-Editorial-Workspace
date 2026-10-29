@@ -9,12 +9,12 @@ The local phases 1–7 remain intact. Gemini extends the existing FastAPI/React 
 | 10 — AI writing | Exact-passage suggestions, numerical safeguards, cited 300–500-word newsletters | Controlled tests pass; live model evaluation pending |
 | 11 — Streaming and usage | Progress stream, persisted jobs, request IDs, daily cap, explicit newsletter apply, private access | Local API/UI checks; see TESTING.md |
 | 12 — Cloud readiness | PostgreSQL migration, Vercel entrypoint and linked API/web projects | Managed database credentials and cloud migration required |
-| 13 — Deployment | Vercel projects connected to this repository | Production promotion waits for database, credentials and health checks |
+| 13 — Deployment | Vercel projects connected to this repository | Both protected preview builds READY; production promotion waits for PostgreSQL and health checks |
 | 14 — Final verification | Isolated browser and API coverage prepared | Live sources → Gemini brief → draft → editing → export still required |
 
 ## Owner input needed
 
-Put GEMINI_API_KEY in the ignored root .env. Connect the Neon database to fieldnotes-editorial-api or put its PostgreSQL DATABASE_URL in that same file. Keep passwords/keys out of chat and Git. WORKSPACE_PASSWORD and SESSION_SECRET are backend-only; local generated values must remain private.
+The supplied Gemini key is now in the ignored root .env and Vercel backend secret store; live verification timed out. Connect the Neon database to fieldnotes-editorial-api or put its PostgreSQL DATABASE_URL in that same file. Keep passwords/keys out of chat and Git. WORKSPACE_PASSWORD and SESSION_SECRET are backend-only; local generated values must remain private.
 
 ## Completion criteria
 

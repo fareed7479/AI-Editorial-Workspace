@@ -34,3 +34,7 @@ Research saves only after evidence checks. Writing adds individually reviewable 
 Single-editor access uses an eight-hour signed HttpOnly session, constant-time password comparison, origin checks and a shared SQL login-attempt limit. Hosted startup fails closed without PostgreSQL, a strong session secret and a workspace password. This is one private editor workspace, not multi-tenant accounts or collaboration.
 
 Controlled verification: 55 backend tests passed, including malformed provider output, evidence references, numerical preservation, stale results, quota/replay and authentication. Live provider and deployed verification remain separate gates.
+
+## Live verification checkpoint
+
+The owner supplied GEMINI_API_KEY and it was saved as a sensitive backend Vercel environment variable. The real SDK smoke request returned the sanitized provider_timeout error; a separate Google endpoint request timed out too. No successful live model response is asserted. All 55 backend assertions use controlled provider responses. Managed PostgreSQL is not yet attached, so production workflow verification remains blocked.
