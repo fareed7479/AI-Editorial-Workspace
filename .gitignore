@@ -12,3 +12,7 @@ coverage/
 *.log
 *.tsbuildinfo
 .env.local
+
+.vercel/
+.env.*
+!.env.example
