@@ -1,79 +1,59 @@
-# AI disclosure and reliability
+# AI disclosure and editorial reliability
+**What was built, what is verified, and who makes the decisions**
 
-> **Gemini delivery update:** optional source-grounded research, exact-passage writing suggestions, reviewed newsletter generation, progress/history and direct workspace access now exist. Rule-based tools remain available. Submitted sources/draft context are sent to Google only when you request generation. Model output is checked for structure and exact evidence references, not independently verified for truth. Live Gemini and deployment acceptance remain pending. See [AI integration](AI_INTEGRATION.md) and [deployment](DEPLOYMENT.md).
+[Docs](README.md) · [Product note](PRODUCT.md) · [Evidence](TESTING.md)
 
+## Development contribution
 
-**Purpose:** explain how this repository was developed, what its current runtime actually does, where data goes, and which decisions remain the editor's responsibility.
-
-[Documentation guide](README.md) · [Product](PRODUCT.md) · [Architecture](ARCHITECTURE.md) · [Gemini roadmap](ROADMAP.md)
-
-## Development versus runtime
-
-| Context | Actual behavior |
+| Contributor/tool | Recorded role |
 | --- | --- |
-| Development | An AI coding assistant implemented the repository following the Python + SQL + React plan |
-| Current research runtime | Python extracts/ranks source sentences and selects topic-based analysis prompts |
-| Current writing runtime | Deterministic rules flag long sentences, filler, and passive-voice candidates |
-| External model calls | Optional Google Gemini calls when the editor explicitly requests generation |
-| Next requested work | Gemini cloud generation and Vercel deployment; still pending |
+| AI coding assistant | Implemented and revised application code, tests, deployment configuration, docs and reproducible examples |
+| Owner | Supplied project direction and credentials, connected Vercel/Neon, requested login removal and public access |
+| React/Vite, FastAPI, SQLAlchemy/Alembic | Application framework, API and persistence |
+| HTTPX, Trafilatura, BeautifulSoup | Accessible public-page retrieval/extraction |
+| Pytest, Vitest, Playwright | Controlled tests and browser checks |
+| Google Gemini | Optional runtime generation; successful live response remains unverified |
 
-The baseline tools need no model key. Optional Gemini reads a backend-only key from the environment. A failed Gemini request is labeled as a failure; it is never disguised as generated output from a hidden fallback. [TESTING.md](TESTING.md) separates recorded local results from unverified deployment assumptions.
+The repository was substantially assistant-implemented; it is not presented as unaided manual owner work. Recorded checks—not the presence of tests or AI-generated code—support verification claims.
 
-## Interpreting research output
+## Runtime data boundaries
 
-| Label or field | What it means | What it does not establish |
+| Action | Data destination |
+| --- | --- |
+| Save source/draft | API and configured SQL database |
+| Import URL | Backend fetches the submitted accessible public page |
+| Request Gemini | Relevant submitted sources/saved draft/brief are sent to Google |
+| Export | Saved Markdown and source references download to the browser |
+| Webfonts | CSS may load Google Fonts; fallback fonts are available |
+
+Provider keys/database credentials stay server-side and outside Git. Gemini requests store=false, but provider logging/retention depends on the service and account terms. Jobs store validated results, usage and failure metadata in SQL.
+
+> [!WARNING]
+> All production and preview deployment URLs are public at the owner's request. There is no application login or per-user ownership. Do not place private material in this shared demo; visitors can read/edit it and use its quota.
+
+## What labels establish
+
+| Label | Meaning | Not established |
 | --- | --- | --- |
-| source_claim | An attributed statement selected from supplied/extracted source text | Independently verified fact |
-| speculation | Selected words suggest uncertainty or a prediction | Complete contextual classification |
-| verified=false | The app has not independently checked the claim | That the source is necessarily false |
-| Primary/secondary/unverified | Editor-supplied source classification | Automated credibility scoring |
-| Why / audience / angle | Explicit editorial analysis prompts selected by topic | LLM synthesis or proven impact |
+| source_claim / excerpt | Attributed source statement | Independent verification |
+| speculation | Uncertainty cue or explicit model classification | Perfect contextual interpretation |
+| Analysis / angle | Editorial interpretation | Proven impact or factual certainty |
+| verified=false | No independent fact-check was performed | That the claim is necessarily false |
+| Primary / secondary / unverified | Editor-selected reliability | Automated credibility investigation |
 
-Selected excerpts can omit context. Three source records can share one publisher or repeat one announcement. The editor must check dates, provenance, independence, technical qualifications, and conflicting evidence before publication.
+Source IDs and exact quotations are checked; stored links are used rather than invented model URLs. These checks do not prove that a broader generated claim logically follows from an excerpt. Three sources can repeat one publisher's claims.
 
-## Data flow and trust boundaries
+## Editorial control and limitations
 
-| Data/action | Current destination or behavior |
-| --- | --- |
-| Pasted sources and drafts | Browser-to-backend requests, then the configured SQL database |
-| URL-only import | Server requests the submitted public page and extracts text |
-| Draft content | Saved draft and relevant source context are sent to Google for requested Gemini writing/newsletters |
-| Export | Saved draft plus source references downloaded as Markdown |
-| Webfonts | CSS can request Google Fonts; system fallback fonts work offline |
-| Analytics | No analytics integration installed |
+- Originals and saved prior versions are retained; suggestions are individual decisions.
+- Long/passive passages may require a reviewed rewrite; technical complexity can be justified.
+- Accepted changes can alter emphasis despite improved metrics. Check actors, conditions, numbers, licensing and hardware qualifications.
+- Import safeguards reject private/local resolved targets and oversized/unsupported content, but DNS-rebinding protection is incomplete.
+- No plagiarism detection, semantic fact-checking, collaboration isolation, auto-publication or mass-accept exists.
+- Public preview environments must not be assumed isolated from production merely because both have database variables.
 
-Source content is treated as text, not executed as instructions. React does not inject it as raw HTML. The app does not implement encryption or access control for local database files; protect the host and database appropriately.
+## Example integrity
 
-## Safeguards already present
+[The newsletter](SAMPLE_NEWSLETTER.md) is a dated, sourced retrospective, not a real-model benchmark. [The comparison](BEFORE_AFTER.md) is a reproduced run of the actual deterministic writing service, not a browser capture or Gemini output. All three original sources are from one publisher; that limitation remains explicit.
 
-- Import validation blocks non-global resolved addresses, credentials in URLs, uncommon ports, redirects, unsupported response types, and oversized bodies.
-- Drafts preserve the original and prior saved text; individual suggestions can be edited, accepted, or rejected.
-- Overlapping suggestions become stale; sequential stale-version requests are rejected.
-- Passive rewrites require human input rather than inventing an actor. Some long sentences also need a reviewed rewrite.
-
-## Remaining limitations
-
-| Limit | Practical consequence |
-| --- | --- |
-| DNS validation and connection resolution are separate | DNS rebinding is not fully prevented; deploy with restricted network egress |
-| No application login or per-user ownership | Reachable deployments share all workspace data and AI quota |
-| PostgreSQL project-row locking and version checks | Prevent stale mutations; collaboration and SQLite concurrent editing are outside scope |
-| Rule-based writing | False positives, missed grammar, changed emphasis, and imperfect sentence boundaries remain possible |
-| No independent verification | Accepted rewrites and cited claims still require editorial review |
-
-There is no automatic mass-accept, publication, semantic fact-checking, or plagiarism detection. Metrics describe text; they are not measures of factual correctness or overall quality.
-
-## Sample provenance
-
-| Sample | Provenance |
-| --- | --- |
-| In-app demo | Fictional material, explicitly labeled and marked unverified |
-| [Newsletter](SAMPLE_NEWSLETTER.md) | August 2025 retrospective using three real pages from one publisher; not independent corroboration or a model evaluation |
-| [Before/after](BEFORE_AFTER.md) | Illustrative editorial text and reviewed decisions; not a measured performance benchmark |
-| [Seeder inputs](sample_sources.json) | Attributed editorial paraphrases, not verbatim full articles |
-
-## Disclosure required after Gemini integration
-
-Gemini model configuration is backend-only and configurable. Requested source/draft context is sent to Google; provider retention depends on the account and service terms. The SDK requests store=false, which is not a promise about all provider logging. Validated results and usage metadata are retained in generation_jobs; source/draft content remains in SQL. Failed calls return sanitized errors without a hidden provider fallback. Live response evaluation is pending credentials; see [AI_INTEGRATION.md](AI_INTEGRATION.md).
-
-> **Access update:** application login/logout and password/session requirements have been removed at the owner’s request. Landing opens the workspace directly. Database requirements and Gemini request limits remain. Platform-level Vercel protection is separate. See [deployment and Neon setup](DEPLOYMENT.md).
+[Verification record](TESTING.md) · [Outstanding work](ROADMAP.md)

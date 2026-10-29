@@ -1,6 +1,6 @@
 # Open weights, practical questions: evaluating gpt-oss
 
-> **Purpose:** a sourced editorial example, not generated app output. [Guide](README.md) · [Editing example](BEFORE_AFTER.md)
+> **Assignment Part C · 342-word body.** A sourced retrospective revised with the application's deterministic Writing Assistant. [Submission guide](README.md) · [Actual feedback and edits](BEFORE_AFTER.md)
 
 *Retrospective sample about the August 5, 2025 release. Prepared October 29, 2026; this is not this week's news.*
 
@@ -22,4 +22,5 @@ The editorial takeaway is to separate availability from suitability. The announc
 2. [OpenAI gpt-oss implementation repository](https://github.com/openai/gpt-oss)
 3. [OpenAI gpt-oss-20b model card](https://huggingface.co/openai/gpt-oss-20b)
 
-*Source pages inspected October 29, 2026. Hardware and capability statements above are attributed publisher claims. No model was run for this sample.*
+*Source pages inspected October 29, 2026. Hardware and capability statements are attributed publisher claims. The editorial comparison uses the application's deterministic writing service; no Gemini or gpt-oss inference was used to produce this sample. All sources are from the same publisher.*
+

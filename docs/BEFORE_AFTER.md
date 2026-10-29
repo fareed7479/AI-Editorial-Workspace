@@ -1,47 +1,63 @@
-# Before and after | Reviewed editorial decisions
+# Before and after
 
-**Purpose:** demonstrate how individual writing suggestions can improve clarity while retaining the original meaning and technical qualifications.
+**Assignment Part C ? Reproduced with the application's writing engine**
 
-[Documentation guide](README.md) · [Product behavior](PRODUCT.md) · [Writing implementation](../backend/app/writing.py) · [Newsletter sample](SAMPLE_NEWSLETTER.md)
+[Docs](README.md) ? [Final newsletter](SAMPLE_NEWSLETTER.md) ? [Requirements](REQUIREMENTS.md)
 
-> **Example status:** illustrative text with explained editorial decisions. This is not a Gemini output, an automated replay of the exact decision sequence, or a measured model evaluation.
+> [!NOTE]
+> This is an actual deterministic service run, not Gemini output or a captured browser session. The editor chose two filler removals; the script calls the same analyze/decide functions used by the API and checks the result, original preservation, numeric values and citations.
 
-## Original
+## Feedback and editorial decisions
 
-> The model was tested by our team in order to understand whether it could label support tickets reliably, and we really wanted to retain every qualification about hardware, memory, licensing and evaluation coverage before recommending the system.
+| Exact passage | Accepted change | Application feedback |
+| --- | --- | --- |
+| `really ` | Remove | Shorten this phrase. Check that the emphasis still matches your meaning. |
+| `very ` | Remove | Shorten this phrase. Check that the emphasis still matches your meaning. |
 
-## Reviewed revision
+The editor removes optional emphasis without changing the release, hardware claim, source attribution or proposed evaluation. Long-sentence flags remain for review: technical context is retained rather than shortened automatically. A lower word count alone is not evidence of better writing.
 
-> Our team tested the model to understand whether it could label support tickets reliably. And we wanted to retain every qualification about hardware, memory, licensing and evaluation coverage before recommending the system.
+| Metric | Original | Revised |
+| --- | ---: | ---: |
+| Words (body only) | 344 | 342 |
+| Average sentence words | 13.8 | 13.7 |
+| Reading minutes | 1.7 | 1.7 |
+| Saved revisions | 0 | 2 |
 
-## Decisions and rationale
+## Original draft
 
-| Check | Original passage | Reviewed change | Why / qualification |
-| --- | --- | --- | --- |
-| Filler phrase | in order to | to | Shorter phrasing without adding a claim |
-| Filler phrase | really | Remove | Optional emphasis; keep it if the author intends it |
-| Long sentence | Clause ending reliably, and… | Split after reliably | Separate the evaluation purpose from the qualifications |
-| Passive candidate | The model was tested by our team | Our team tested the model | The actor is already identified; no actor is invented |
+OpenAI released two open-weight language models, gpt-oss-120b and gpt-oss-20b, under the Apache 2.0 license. The announcement describes models that developers can run and customize on their own infrastructure. OpenAI also reports reasoning benchmark results, but those publisher-reported comparisons should not be mistaken for an independent evaluation of your application. [1]
 
-The second sentence retains **And** to show the conservative clause split used by the current rule. An editor may remove it in a subsequent manual edit. The example does not imply that every passive sentence should be rewritten.
+For readers considering local inference, the smaller model is really the more immediate starting point. Its model card describes a 21-billion-parameter mixture-of-experts model with 3.6 billion active parameters. OpenAI says its quantized weights can fit within 16 GB of memory. Treat that as a deployment claim with conditions to investigate, rather than a promise about speed or reliability on every laptop. [3]
 
-## Try the example in the workspace
+The repository adds a practical qualification: these models require the Harmony response format. A developer cannot assume that any existing plain-text prompt pipeline will work correctly without adaptation. The documentation also describes configurable reasoning effort, allowing teams to choose among low, medium and high settings. That gives evaluators another variable to hold constant when comparing results. [2]
 
-1. Create a project and paste the original into **Writing studio**.
-2. Choose **Save & check writing**. The app preserves the first saved text as the original.
-3. Review and accept the filler suggestions if their meaning suits the author.
-4. Run checks again: accepting a filler inside a long/passive passage makes overlapping suggestions stale.
-5. Review the sentence split. Run checks again, then supply a passive rewrite that uses the explicitly named team.
-6. Open **Compare revisions** to inspect original/current text, counts, and previous saved versions.
+**Our analysis:** access to model weights changes who controls deployment and customization. It does not automatically settle whether a model is the right choice. A useful pilot should begin with a very specific task and a clear baseline, rather than a broad claim that local models replace hosted services. For a document-labeling workflow, an editor or engineer could measure classification errors, memory use and response time using representative, non-sensitive inputs.
 
-Depending on edit order, the intermediate wording and number of saved versions can differ. The final paragraph can also be entered as a reviewed manual edit. Rejecting a suggestion changes its status without changing the text.
+Keep the first experiment reversible. Record the model version, inference implementation, hardware and reasoning setting alongside the results. Inspect difficult examples and decide in advance what error rate would make the workflow unacceptable. These are proposed evaluation steps, not measurements performed for this article.
 
-## Meaning-preservation checklist
+The editorial takeaway is to separate availability from suitability. The announcement, implementation repository and model card explain what the publisher released and how it expects developers to use it. All three come from the same organization, so they do not supply independent corroboration. Before making a production recommendation, seek outside evaluations and test the exact workflow readers care about.
 
-- [x] The purpose remains evaluating support-ticket classification.
-- [x] Reliability remains a question, not an established result.
-- [x] Hardware, memory, licensing, and evaluation qualifications remain present.
-- [x] A recommendation remains conditional on review.
-- [x] The actor comes from the original text.
+## Revised draft
 
-Metrics may change, but shorter prose alone does not prove editorial quality. Accepted/manual edits retain previous saved text; history is inspectable, with no automatic restore feature. Actual tested behaviors are recorded separately in [TESTING.md](TESTING.md).
+OpenAI released two open-weight language models, gpt-oss-120b and gpt-oss-20b, under the Apache 2.0 license. The announcement describes models that developers can run and customize on their own infrastructure. OpenAI also reports reasoning benchmark results, but those publisher-reported comparisons should not be mistaken for an independent evaluation of your application. [1]
+
+For readers considering local inference, the smaller model is the more immediate starting point. Its model card describes a 21-billion-parameter mixture-of-experts model with 3.6 billion active parameters. OpenAI says its quantized weights can fit within 16 GB of memory. Treat that as a deployment claim with conditions to investigate, rather than a promise about speed or reliability on every laptop. [3]
+
+The repository adds a practical qualification: these models require the Harmony response format. A developer cannot assume that any existing plain-text prompt pipeline will work correctly without adaptation. The documentation also describes configurable reasoning effort, allowing teams to choose among low, medium and high settings. That gives evaluators another variable to hold constant when comparing results. [2]
+
+**Our analysis:** access to model weights changes who controls deployment and customization. It does not automatically settle whether a model is the right choice. A useful pilot should begin with a specific task and a clear baseline, rather than a broad claim that local models replace hosted services. For a document-labeling workflow, an editor or engineer could measure classification errors, memory use and response time using representative, non-sensitive inputs.
+
+Keep the first experiment reversible. Record the model version, inference implementation, hardware and reasoning setting alongside the results. Inspect difficult examples and decide in advance what error rate would make the workflow unacceptable. These are proposed evaluation steps, not measurements performed for this article.
+
+The editorial takeaway is to separate availability from suitability. The announcement, implementation repository and model card explain what the publisher released and how it expects developers to use it. All three come from the same organization, so they do not supply independent corroboration. Before making a production recommendation, seek outside evaluations and test the exact workflow readers care about.
+
+## Sources and reproduction
+
+Both versions use the three attributed links in [the final newsletter](SAMPLE_NEWSLETTER.md#sources-and-provenance). They are a dated retrospective, not current-week reporting. The first saved text remains original; each accepted edit stores its prior version.
+
+~~~powershell
+.\.venv\Scripts\python.exe scripts/build_sample_comparison.py
+~~~
+
+This command rewrites this document and checks the expected result. It makes no network/model calls and changes no workspace data. To inspect the same behavior visually, paste the original into a new project, Save & check writing, review each filler removal, then open Compare revisions.
+

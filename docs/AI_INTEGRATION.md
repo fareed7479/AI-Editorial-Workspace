@@ -1,44 +1,66 @@
-# Gemini integration delivery
+# Gemini integration
+**Optional cloud assistance with explicit editorial review**
 
-This document records phases 8–14 as they are implemented. Existing landing, library, research, editing, comparison and exports remain the baseline.
+[Docs](README.md) · [Architecture](ARCHITECTURE.md) · [Disclosure](AI_DISCLOSURE.md)
 
-## Phase 8: foundation
+> [!IMPORTANT]
+> The integration and controlled tests exist. A successful real Gemini response has **not** been verified. Previous live attempts timed out. Normal deployment builds never make model calls.
 
-- Official google-genai Python SDK; configuration reads backend/.env, root .env, root .env.local, then process variables (highest priority).
-- Credentials are never returned to React or included in configuration representations.
-- Structured Pydantic schemas for research, writing suggestions and newsletter output.
-- Bounded input/output, provider timeouts, bounded transport retry, sanitized provider failures, no automatic continuation.
-- Streaming structured responses are buffered and schema-validated; partial JSON is never persisted as a finished result.
-- GEMINI_MODEL is configurable; the initial default is gemini-3.8-flash, checked against official model documentation on October 29, 2026.
+## Two visible paths
 
-Live Gemini validation requires the user's key. A foundation implementation is not a claim that a real provider request or deployment has passed. Later sections will record research/writing persistence, UI, usage controls and actual verification.
+| Path | What it does |
+| --- | --- |
+| Deterministic tools | Extract/rank source text; provide analysis prompts; check sentence length/filler/passive candidates; calculate metrics |
+| Gemini tools | Propose synthesis, contextual writing suggestions and cited newsletters using submitted context |
 
-Official references: [Python SDK](https://googleapis.github.io/python-genai/), [models](https://ai.google.dev/gemini-api/docs/models), [structured outputs](https://ai.google.dev/gemini-api/docs/structured-output).
+A failed Gemini operation is shown as a failure. Rule-based output is not relabeled as Gemini.
 
-## Phase 9: source-grounded research
+## Configuration and bounds
 
-Research conversion requires one summary per submitted source, exact supporting excerpts and known source IDs. Titles, URLs and reliability labels come from stored records rather than model output. Synthesis, uncertainty and evidence-backed contradictions remain explicitly editorial interpretation. Five controlled research tests passed; real Gemini output still requires live evaluation. Request routing/persistence is connected in phase 11.
+| Setting | Current default |
+| --- | --- |
+| SDK | Official google-genai Python SDK, pinned in requirements |
+| Model | GEMINI_MODEL, default gemini-3.8-flash; configurable |
+| Input / output | 80000 characters / 8192 tokens |
+| Provider timeout | 60 seconds; bounded total stream handling |
+| Transport attempts | At most 2; no UI auto-regeneration |
+| Shared request cap | 20 requests per UTC day |
 
-## Phase 10: reviewed AI writing
+Credentials are backend-only. The model default was checked against provider documentation during implementation; availability for a specific account still needs a live request. Failed provider operations consume the application's reserved request; cached replay does not. The cap is not a currency budget and does not represent provider billing.
 
-Gemini writing suggestions map exact passages (including repeated occurrences), keep numerical values intact and remain individually editable/acceptable/rejectable. Newsletter output must have a 300–500-word body and valid numbered citations backed by exact excerpts from at least three stored sources. It is a reviewable result, not an automatic draft overwrite. Six writing/newsletter validation tests passed; model evaluation is still credential-dependent.
+## Validation by operation
 
-## Phase 11: streaming, persistence and access
+| Operation | Required checks | Saved behavior |
+| --- | --- | --- |
+| Research brief | Three sources; exactly one summary per source; known source IDs; exact excerpts; stored provenance | Save only validated brief; interpretation/uncertainty stays labeled |
+| Writing review | Saved draft/version; exact passage occurrence; numerical-value preservation | Add individual suggestions; do not rewrite current text |
+| Newsletter | Saved brief and three sources; 300–500-word body; numbered citations; exact evidence from at least three sources | Store preview; source list comes from server records |
+| Apply newsletter | Explicit action; unchanged input fingerprint/draft version | Create saved revision; preserve original |
 
-The API streams NDJSON started/progress/complete/error events. Progress reports character counts; raw partial model JSON is not inserted into drafts. A completed response must pass both schema and editorial validation before being saved. Cancelled/failed calls retain a request record. Hard process termination can leave a running record; history makes that state visible and a new request needs a new UUID.
+Matching an excerpt proves textual correspondence, not factual truth or semantic entailment. Numerical preservation does not guarantee that a rewrite preserves meaning.
 
-Generation jobs persist model, timestamps, status, input fingerprint and provider token metadata. A repeated completed request ID replays its saved result without another provider call or quota charge. Changed inputs and stale draft versions are rejected. A UTC daily SQL-backed request cap survives process restarts; it is not a spending budget. Failed provider attempts count. SDK transport retry is bounded; the UI does not silently regenerate failed editorial output.
+## Stream and request lifecycle
 
-Research saves only after evidence checks. Writing adds individually reviewable suggestions without rewriting the draft. Newsletters remain saved previews until Use this draft; applying preserves the original and prior version. Changes during generation prevent stale results from being applied.
+The API sends started → progress → complete/error NDJSON events. Progress shows received character counts; partial model JSON is buffered, never treated as a completed draft. Schema and editorial validation precede saving.
 
-Application login was removed at the owner’s request. The landing page opens the shared workspace directly. Hosted startup requires PostgreSQL; origin checks and SQL-backed AI limits remain. Existing password/session variables are ignored. This is a shared workspace without per-user isolation.
+A request UUID identifies one project/kind/version snapshot. Completed replay returns the saved result without regenerating or reapplying it. Inputs changed since generation are rejected. Jobs retain status, timestamps, model and token metadata.
 
-Controlled verification: 55 backend tests passed, including malformed provider output, evidence references, numerical preservation, stale results, quota/replay and authentication. Live provider and deployed verification remain separate gates.
+Cancellation attempts to close the request and mark it cancelled; check history before retrying. Hard process termination can leave a running record. This is a synchronous request stream, not a durable queue/background worker.
 
-## Live verification checkpoint
+## Failure handling
 
-The owner supplied GEMINI_API_KEY and it was saved as a sensitive backend Vercel environment variable. The real SDK smoke request returned the sanitized provider_timeout error; a separate Google endpoint request timed out too. No successful live model response is asserted. All 55 backend assertions use controlled provider responses. Managed PostgreSQL is not yet attached, so production workflow verification remains blocked.
+| Failure | User-facing outcome |
+| --- | --- |
+| Missing key / input limit / unmet precondition | Clear configuration or validation message; no provider call |
+| Provider authentication/model/quota/timeout | Sanitized, labeled failure; no credential/provider-body disclosure |
+| Invalid JSON/schema/evidence | Reject result; preserve existing workspace content |
+| Project changes during generation | Reject stale result |
+| Stream interrupted after saving | History/replay can establish saved state; avoid blind retry |
 
-## Current cloud checkpoint
+The system treats source/draft text as untrusted data and instructs Gemini to use supplied material only. It enables no browsing/tool retrieval, disables automatic continuation and requests store=false. That flag is not a guarantee about all provider retention/logging.
 
-Neon migration and the cloud non-AI API workflow pass; 54 backend tests pass in the Vercel build. Provider configuration is present, but no successful real Gemini response is claimed. Automatic review rejected recurring billable model checks, so normal builds never call Gemini. verify_release.py --live-ai is a manual, separately approved one-time path (up to three billable requests). Vercel protection remains enabled and currently blocks the frontend proxy. Final source → Gemini brief → reviewed draft → edit → export verification is pending.
+## Live verification policy
+
+backend/verify_release.py is non-AI by default. Its --live-ai mode is manual opt-in and can make up to three billable generations; it is not part of recurring builds. A one-time live run still awaits explicit approval. [TESTING.md](TESTING.md) separates controlled evidence from live acceptance.
+
+Official references: [Python SDK](https://googleapis.github.io/python-genai/) · [Structured outputs](https://ai.google.dev/gemini-api/docs/structured-output) · [Models](https://ai.google.dev/gemini-api/docs/models)

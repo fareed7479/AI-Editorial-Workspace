@@ -1,77 +1,48 @@
-# Delivery phases and requirement traceability
+# Delivery history
+**What changed and what the evidence supports**
 
-**Purpose:** show what phases 1–7 delivered, where each requirement lives, and which completion claims are supported by recorded evidence.
+[Docs](README.md) · [PDF coverage](REQUIREMENTS.md) · [Validation](TESTING.md)
 
-[Documentation guide](README.md) · [Validation](TESTING.md) · [Remaining phases](ROADMAP.md)
+## Phases 1–7 · Local baseline
 
-> **Status interpretation:** source delivery is complete for the local baseline. This does **not** mean Gemini, live PostgreSQL, Docker runtime, or Vercel deployment is complete. The requirement matrix is based on the recovered assignment plan; it is not a fresh independent audit of the original assignment PDF.
-
-## Phase-by-phase delivery
-
-| Phase | Work delivered | Evidence | Current status |
-| --- | --- | --- | --- |
-| 1. Foundation | Python/FastAPI, SQLAlchemy, React/TypeScript/Vite, environment reference, delivery plan | Dependencies installed; production build passed | Implemented |
-| 2. Research | Persistent projects/sources, 3-source gate, linked extracts, reliability, speculation cues, structured prompts | API and controlled extraction tests | Implemented in extractive mode |
-| 3. Writing | Three checks, passage/rationale/rewrite, accept/reject, originals, revisions, metrics | Unit/API and browser workflows | Implemented in deterministic mode |
-| 4. Workspace | Responsive research/writing/compare tabs, state feedback, unsaved guards, export | Desktop/mobile workflows and screenshots | Implemented; local browser verified |
-| 5. Verification | Pytest, Vitest, Playwright, CI with PostgreSQL migration/browser checks | 20 backend + 2 frontend + 4 browser tests locally | Local checks passed; remote CI unverified |
-| 6. Handoff | Product/architecture/API/disclosure docs, real-source newsletter, before/after, sample seeder | Sample seed succeeded; dated 365-word example before sources | Delivered |
-| 7. Release preparation | Dependency locks, launchers, Docker/Compose, validation record | Build and SQLite migration round trip passed | Source prepared; cloud/container runtime unverified |
-
-## Historical GitHub commits
-
-The initial README bootstrap was followed by a commit for each delivery phase:
-
-| Phase | Commit | What changed |
+| Phase | Deliverable | Qualification |
 | --- | --- | --- |
-| Bootstrap | [8e0955d](https://github.com/fareed7479/AI-Editorial-Workspace/commit/8e0955df6ce4408657b26be1e0d308278a20add7) | Initialize repository README |
-| 1 | [91039a8](https://github.com/fareed7479/AI-Editorial-Workspace/commit/91039a8de57b176ecea424254d9ba25679273195) | Foundation and phase plan |
-| 2 | [bef80f4](https://github.com/fareed7479/AI-Editorial-Workspace/commit/bef80f48c59da37a459c7dbbc659546832bfe0a0) | SQL persistence and research services |
-| 3 | [4677e37](https://github.com/fareed7479/AI-Editorial-Workspace/commit/4677e37a8358c2caa819882a64269d063847bfea) | Writing checks, revisions, API |
-| 4 | [8d51049](https://github.com/fareed7479/AI-Editorial-Workspace/commit/8d51049f885ae596edb49b2375b72cf4bdafaad0) | Responsive React workflow |
-| 5 | [a71d483](https://github.com/fareed7479/AI-Editorial-Workspace/commit/a71d483bb0b50bcb6b8bce85e91c68d7c76f4528) | Tests, CI, import/matching refinements |
-| 6 | [9506cd3](https://github.com/fareed7479/AI-Editorial-Workspace/commit/9506cd3af21271110a212e9cc2e7a1a9093ef4fb) | Documentation, examples, validation |
-| 7 | [088f9bc](https://github.com/fareed7479/AI-Editorial-Workspace/commit/088f9bcd1c890eacd5d0ea6794551eec262ad9fa) | Locks, container files, startup scripts |
+| 1 · Foundation | React/Vite, FastAPI, SQL and environment setup | Stack choice is allowed by the PDF |
+| 2 · Research | Persistent sources, extraction, three-source gate, attributed brief | Extractive/heuristic baseline |
+| 3 · Writing | Three checks, decisions, metrics, originals/revisions | Rules require editorial judgment |
+| 4 · Workspace | Research/writing/compare, export and responsive state feedback | Historical browser evidence recorded separately |
+| 5 · Verification | Pytest, Vitest, Playwright and CI configuration | CI configuration is not proof of a remote run |
+| 6 · Handoff | Product/engineering notes, newsletter, editing example | Example later upgraded to an actual deterministic replay |
+| 7 · Release preparation | Locks, launchers, Docker/Compose and migrations | Container runtime remains unverified |
 
-Commit history records source changes; it does not by itself demonstrate runtime verification. The current documentation refresh follows this baseline and implements no next-phase functionality.
+Initial phase commits are retained in [repository history](https://github.com/fareed7479/AI-Editorial-Workspace/commits/main). The original README bootstrap and phase commits record source delivery, not independent runtime acceptance.
 
-## Workspace interface follow-up
+## Interface follow-up
 
-Before phases 8–14, the user requested a landing page in the existing theme and more space for workspace material. This follow-up adds a separate landing page, searchable/sortable grid and list library, saved-material previews, full-source reading, modal project creation, and an expandable editorial workspace. It does not implement Gemini or deployment. Details: [INTERFACE.md](INTERFACE.md); observed checks: [TESTING.md](TESTING.md).
+The owner requested a landing page in the same editorial theme and more room to browse saved material. Added: searchable/sortable grid/list project library, previews, full-source dialogs, modal creation and expandable workspace.
 
-## Requirement matrix
+## Phases 8–14 · Owner-requested cloud extension
 
-| Requirement | Implementation | Evidence / qualification |
+| Phase | Delivered | Acceptance |
 | --- | --- | --- |
-| At least 3 sources | Source input/routes and build_brief | test_complete_persisted_workflow |
-| Article, URL, report, tweet text | Source form and optional HTTPX import | Browser pasted-source test; controlled import tests; not an X/Twitter integration |
-| What happened / why / who / angle | Per-source evidence and analysis fields in research.py | Extracts and templates; not Gemini synthesis |
-| Original-source references | Source/evidence URL fields and Markdown references | API attribution and browser export checks |
-| Fact vs analysis/speculation | source_claim/speculation, verified=false, labeled analysis | Heuristic classification; no independent fact-checking |
-| Reliability | Editor-supplied primary/secondary/unverified | Source form and brief caveat |
-| 3 actionable writing checks | Long sentences, filler, passive candidates in writing.py | test_three_checks_and_metrics |
-| Passage, reason, proposed rewrite | SuggestionCard and suggestion payload | Browser editing flow; human input required for some rewrites |
-| Accept/reject | decide and version-aware API | API and browser tests |
-| Original preservation and comparison | Draft.original, current, revision JSON, comparison UI | Persistence and editing assertions |
-| Useful metrics | Words, sentences, average length, long sentences, reading time | Unit tests and UI; not semantic quality scores |
-| Newsletter example | [SAMPLE_NEWSLETTER.md](SAMPLE_NEWSLETTER.md) | Real primary sources; dated retrospective, not current-week reporting |
-| Before/after example | [BEFORE_AFTER.md](BEFORE_AFTER.md) | Explained reviewed edits and retained qualifications |
-| Working app/source/docs | Local application, README, technical/product docs, locks, CI | Recorded local checks in [TESTING.md](TESTING.md) |
+| 8 · Gemini foundation | SDK, settings, schemas, errors and bounds | Controlled tests pass; real response pending |
+| 9 · AI research | Evidence-checked summaries/synthesis/uncertainty | Live editorial evaluation pending |
+| 10 · AI writing | Exact-passage proposals and cited newsletter previews | Live model evaluation pending |
+| 11 · Progress and usage | Streams, SQL jobs/quota, replay, stale-result checks | Controlled API/UI evidence |
+| 12 · Cloud readiness | Neon connected/migrated, Vercel entrypoints/routing | Cloud core checks pass |
+| 13 · Deployment | API/frontend production READY; all URLs public | Landing/API proxy reads HTTP 200 |
+| 14 · Final verification | 54 backend and 2 frontend tests, cloud core workflow | Full deployed browser and real Gemini still pending |
 
-## Scope decisions and remaining work
+## Subsequent decisions
 
-**Current:** extractive research and deterministic writing run without credentials. Sources are persistent; fictional content is never substituted for a failed import. The UI uses custom CSS/components and tab state rather than Tailwind/shadcn/Router.
+| Change | Reason / result |
+| --- | --- |
+| Remove application login | Owner requested landing → workspace directly; legacy session variables unused |
+| Open production and preview links | Explicit owner request; shared data/quota are public |
+| Keep build verification non-AI | Avoid recurring billable generations; live check stays opt-in |
+| Recheck original assignment PDF | Distinguish actual PDF deliverables from the longer implementation plan |
+| Reproduce editorial edits | Same writing engine applies two reviewed filler removals and verifies originals/numbers/citations |
 
-**Next:** the user has requested Gemini cloud generation and full Vercel deployment. Phases 8–11 now implement the model adapter, evidence/writing validators, progress UI, persistent limits and access controls. Live provider verification remains pending. Phases 8–14 are detailed in [ROADMAP.md](ROADMAP.md).
+Current documentation separates source implementation from verification limits. No claim is made that all phases are fully accepted or that elapsed work stayed within the original assignment time limit.
 
-Authentication and persistent usage limits are implemented. Cloud credentials, managed PostgreSQL migration, deployed persistence checks and real Gemini-response evaluation remain necessary release gates. No MongoDB, Express, Next.js, LangChain, vector database, agents, queues, or Redis was introduced into the baseline.
-
-## Phases 8–14 delivery update
-
-See [AI integration](AI_INTEGRATION.md) for phase 8 foundation, phase 9 research, phase 10 writing, and phase 11 streaming/usage/access. Phase 12 adds cloud source configuration and linked Vercel projects. Phases 13–14 remain gated by secrets, database provisioning and live verification; the current acceptance table is in [ROADMAP.md](ROADMAP.md). Controlled backend checks: 55 passed.
-
-> **Access update:** application login/logout and password/session requirements have been removed at the owner’s request. Landing opens the workspace directly. Database requirements and Gemini request limits remain. Platform-level Vercel protection is separate. See [deployment and Neon setup](DEPLOYMENT.md).
-
-## Neon release checkpoint
-
-Neon is connected and migrated. Both production builds are READY; the cloud core workflow and 54 backend tests pass. Phases 13–14 remain partial: platform protection blocks the frontend proxy, and live Gemini plus final browser verification are pending. [Current acceptance](ROADMAP.md) supersedes earlier planning statements.
+[Current acceptance gates](ROADMAP.md)

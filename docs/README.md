@@ -1,57 +1,42 @@
-# Documentation guide
+# Submission guide
+**Fieldnotes · AI Editorial Workspace**
 
-**Purpose:** help a reviewer, developer, or editor find the right explanation without reading every file in sequence.
+[Live application](https://fieldnotes-editorial-workspace.vercel.app/) · [Repository](https://github.com/fareed7479/AI-Editorial-Workspace) · [Quick start](../README.md#run-locally)
 
-> **Current:** Neon is connected/migrated, both protected production builds are READY, and cloud core checks plus 54 backend tests pass. Public proxy access, real Gemini output and final browser verification remain pending; see [current acceptance](ROADMAP.md).
+> [!TIP]
+> Review in this order: **live workflow → product decisions → sample and edits → requirement coverage → validation limits**.
 
-## Choose a reading path
+## The assignment handoff
 
-| Your goal | Read in this order |
-| --- | --- |
-| Run and explore the app | [Root README](../README.md), then [Interface](INTERFACE.md) and [Product](PRODUCT.md) |
-| Review implementation completeness | [Phases](PHASES.md), then [Testing](TESTING.md) |
-| Understand or change code | [Architecture](ARCHITECTURE.md), then [AI disclosure](AI_DISCLOSURE.md) |
-| Review editorial output | [Newsletter](SAMPLE_NEWSLETTER.md), then [Before/after](BEFORE_AFTER.md) |
-| Prepare Gemini and deployment work | [Roadmap](ROADMAP.md), with [Phases](PHASES.md) as the baseline |
-
-## Document responsibilities
-
-| File | What it explains | What it does not claim |
+| Deliverable | Document | What to look for |
 | --- | --- | --- |
-| [README.md](../README.md) | Setup, daily workflow, configuration, repository map | That a local build is a live cloud deployment |
-| [INTERFACE.md](INTERFACE.md) | Landing, project library, preview/reading controls | Laptop file browsing or cloud AI integration |
-| [PRODUCT.md](PRODUCT.md) | User needs, supported actions, design decisions, scope | That every proposed feature is implemented |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Modules, schema, requests, edit lifecycle, operations | Transactional multi-user support |
-| [PHASES.md](PHASES.md) | Phases 1–7, requirement traceability, source history | Completion of future Gemini/Vercel work |
-| [TESTING.md](TESTING.md) | Recorded checks, commands, gaps, resolved failures | New test runs or unobserved CI success |
-| [AI_DISCLOSURE.md](AI_DISCLOSURE.md) | AI-assisted development, deterministic runtime, data boundaries | Runtime LLM calls or automatic fact verification |
-| [SAMPLE_NEWSLETTER.md](SAMPLE_NEWSLETTER.md) | Real-source, dated editorial example | Current-week news or independent model testing |
-| [BEFORE_AFTER.md](BEFORE_AFTER.md) | A conservative editing example and decision sequence | An automatic Gemini rewrite or benchmark |
-| [ROADMAP.md](ROADMAP.md) | Planned phases 8–14 and acceptance criteria | Credentials provisioned or deployments completed |
+| Application and setup | [Root README](../README.md) | Public link, local commands, environment variables |
+| Product/engineering note | [PRODUCT.md](PRODUCT.md) | All Part D questions answered concisely |
+| Sourced newsletter | [SAMPLE_NEWSLETTER.md](SAMPLE_NEWSLETTER.md) | 342-word body, context, practical implication, attributed links |
+| Before and after | [BEFORE_AFTER.md](BEFORE_AFTER.md) | Exact feedback, accepted decisions, actual writing-engine replay |
+| Coverage review | [REQUIREMENTS.md](REQUIREMENTS.md) | Original PDF sections mapped to code, artifacts and limits |
 
-## Supporting material
+## Technical reading paths
 
-- [sample_sources.json](sample_sources.json): attributed paraphrases used by the real-source sample seeder; not downloaded full articles.
-- [seed_sample.py](../scripts/seed_sample.py): creates a sample project through the running API; the full sample Markdown becomes its draft.
-- [CI workflow](../.github/workflows/ci.yml): intended automated checks; execution status is separate from configuration.
-- [Dependency locks](../backend/requirements.lock): backend snapshot; the frontend snapshot is [package-lock.json](../frontend/package-lock.json).
+| Goal | Read |
+| --- | --- |
+| Understand the interface | [INTERFACE.md](INTERFACE.md) |
+| Change backend, schema or API | [ARCHITECTURE.md](ARCHITECTURE.md) |
+| Understand Gemini validation | [AI_INTEGRATION.md](AI_INTEGRATION.md) |
+| Review data use and AI disclosure | [AI_DISCLOSURE.md](AI_DISCLOSURE.md) |
+| Operate Vercel and Neon | [DEPLOYMENT.md](DEPLOYMENT.md) |
+| Assess observed results | [TESTING.md](TESTING.md) |
+| Inspect delivery history / outstanding work | [PHASES.md](PHASES.md) · [ROADMAP.md](ROADMAP.md) |
 
-## How status is expressed
+## Evidence labels
 
 | Label | Meaning |
 | --- | --- |
-| Implemented | Behavior exists in the current code |
-| Verified locally | A specific recorded local check passed |
-| Configured / unverified | Files exist, but a successful runtime check is not established |
-| Planned | Agreed next work; code and verification are still pending |
+| Implemented | Behavior is present in source |
+| Verified | A named recorded check passed |
+| Pending | Acceptance has not been demonstrated |
+| Historical | Earlier evidence; not a fresh test of the current deployment |
 
-When code changes, update its owning document, the phase status, and the validation record together. Keep historical results dated, include verification limits, and commit documentation with the feature it describes.
+The public demo is a shared workspace without login or per-user isolation. Preview links are also public at the owner's request. Live Gemini and full deployed browser acceptance remain pending; deterministic core checks and cloud deployment evidence are recorded separately.
 
-## Cloud integration guides
-
-- [AI_INTEGRATION.md](AI_INTEGRATION.md): provider configuration, validated research/writing, progress, quota and review semantics.
-- [DEPLOYMENT.md](DEPLOYMENT.md): linked Vercel projects, PostgreSQL migration, private sessions, same-origin API routing and release checklist.
-
-Historical phase 1–7 results and example documents remain dated baseline evidence; they are not live Gemini benchmarks.
-
-> **Access update:** application login/logout and password/session requirements have been removed at the owner’s request. Landing opens the workspace directly. Database requirements and Gemini request limits remain. Platform-level Vercel protection is separate. See [deployment and Neon setup](DEPLOYMENT.md).
+The sample source notes are attributed paraphrases in [sample_sources.json](sample_sources.json). They are not independently verified full-article downloads. Do not confuse the fictional in-app sample with the real-source retrospective.

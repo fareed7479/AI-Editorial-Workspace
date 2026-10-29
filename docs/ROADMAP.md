@@ -1,21 +1,32 @@
-# Delivery status and remaining acceptance
+# Remaining work
+**Acceptance gates, not a feature wishlist**
 
-Existing landing, library, research, editing, original/revision history and export behavior remain intact. The app uses React/Vite + FastAPI + SQLAlchemy; no additional agent platform or account system was introduced.
+[Docs](README.md) · [Coverage](REQUIREMENTS.md) · [Evidence](TESTING.md)
 
-| Phase | Implemented / verified | Remaining acceptance |
+## Delivered
+
+| Area | Current state |
+| --- | --- |
+| Research/writing baseline | Implemented; core API workflow verified against Neon |
+| Landing/library/editor | Implemented; current full browser acceptance remains pending |
+| Gemini integration | Implemented with controlled validation tests |
+| Database and deployment | Migrated Neon; production API/frontend READY |
+| Public access | Production and preview URLs public at the owner's request |
+| Assignment docs/output | PDF-mapped note, 342-word sourced sample and actual writing-engine replay |
+
+## Finish verification
+
+| Priority | Work | Done when |
 | --- | --- | --- |
-| 8 — Gemini foundation | Official SDK, configuration, structured schemas, bounded limits and sanitized errors | Successful real provider response |
-| 9 — AI research | Checked source IDs/excerpts, synthesis, uncertainty and contradictions; controlled tests pass | Live editorial evaluation |
-| 10 — AI writing | Exact-passage suggestions and cited newsletter previews; originals preserved | Real model writing/newsletter evaluation |
-| 11 — Streaming and usage | Progress, request history, replay, SQL daily quota and stale-result handling | Deployed streamed result verification |
-| 12 — Cloud readiness | Neon connected, Alembic applied, cloud core workflow and 54 backend tests pass | Confirm isolated preview branching before writable preview use |
-| 13 — Deployment | API and frontend production builds READY | Platform protection blocks frontend proxy; public-release approval required |
-| 14 — Final verification | Cloud SQL/API core checks pass and roll back diagnostics; direct deployed API reads pass | Live Gemini and full deployed browser workflow |
+| 1 | Approved one-time real Gemini check | Brief, writing suggestions and newsletter complete with valid evidence and human semantic review |
+| 2 | Full deployed browser pass | Sources → brief → save → reviewed decisions → compare → reload → export works |
+| 3 | Import evaluation | Allowed/blocked publishers and pasted fallback behave predictably |
+| 4 | Quality evaluation | Blinded original/revised review shows clarity gains without factual/technical loss |
 
-Application login was removed at the owner's request. Legacy password/session variables are ignored. Vercel platform protection remains enabled. Public access would allow anyone who reaches the production site/API to read and edit this shared workspace and consume its AI quota.
+Live verification can incur provider charges and is never in recurring builds. Public-access approval did not authorize the separate one-time model run.
 
-Automatic approval review rejected recurring billable model calls in deployment builds. Recurring checks use migrations, a non-AI rollback-safe workflow check and Pytest only. A separately approved one-time check can make up to three billable Gemini requests. Automatic review also rejected weakening platform protection without explicit approval.
+## If extending beyond the assignment
 
-The local browser rerun is blocked before startup by a Windows asyncio socket-pair hang. Earlier browser results remain historical evidence, not fresh deployed acceptance. Do not mark phases 13–14 fully complete until the remaining gates pass.
+Add per-user isolation and stronger abuse controls before storing private content. Isolate preview APIs/databases and their frontend routing; test backups/restore; improve sentence and terminology checks; add error monitoring. Do not add news discovery, collaboration or automated publishing merely to increase feature count.
 
-[Deployment](DEPLOYMENT.md) · [AI behavior](AI_INTEGRATION.md) · [Validation](TESTING.md)
+The original PDF asks for a lightweight 6–8-hour exercise, not production readiness. Additional owner-requested cloud/UI work should not be presented as verified work inside that limit.

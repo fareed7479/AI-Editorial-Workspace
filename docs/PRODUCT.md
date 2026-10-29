@@ -1,83 +1,48 @@
-# Product note
+# Product and engineering note
+**Assignment Part D · Decisions behind Fieldnotes**
 
-> **Gemini delivery update:** optional source-grounded research, exact-passage writing suggestions, reviewed newsletter generation, progress/history and direct workspace access now exist. Rule-based tools remain available. Submitted sources/draft context are sent to Google only when you request generation. Model output is checked for structure and exact evidence references, not independently verified for truth. Live Gemini and deployment acceptance remain pending. See [AI integration](AI_INTEGRATION.md) and [deployment](DEPLOYMENT.md).
+[Live app](https://fieldnotes-editorial-workspace.vercel.app/) · [Coverage](REQUIREMENTS.md) · [Architecture](ARCHITECTURE.md)
 
+## Product thinking
 
-**Purpose:** explain who Fieldnotes serves, how its workflow behaves, and why the current scope is deliberately small.
-
-[Documentation guide](README.md) · [Architecture](ARCHITECTURE.md) · [Delivery status](PHASES.md) · [Next phases](ROADMAP.md)
-
-## Product in one paragraph
-
-Fieldnotes helps a newsletter editor collect sources, inspect evidence, develop a research brief, and improve a draft without losing the original. It combines a research desk, writing studio, and comparison view. The editor controls every accepted rewrite and remains responsible for factual meaning and publication.
-
-> **Current product:** a single-editor workspace with deterministic tools and optional Gemini research/writing. Cloud production acceptance is pending.
-
-## User journey
-
-| Stage | Editor action | Application response |
-| --- | --- | --- |
-| Start | Create or reopen a project | Persist the project and its source/draft state |
-| Gather | Add article, report, or tweet text; optionally import a URL | Store provenance, content, type, and an editor-selected reliability label |
-| Research | Build after collecting three distinct sources | Return attributed extracts, speculation cues, and what/why/who/angle fields |
-| Draft | Write or paste text, then save | Preserve the first saved text as the original |
-| Review | Run checks and edit/accept/reject suggestions | Apply only reviewed changes; retain prior text and invalidate overlaps |
-| Compare | Open comparison/history | Show saved original/current text and descriptive metrics |
-| Export | Download Markdown | Include the saved draft and source list |
-
-The sidebar supports project search and selection. Loading, error, empty, and success states explain progress. Unsaved-change prompts guard project/tab changes and page unload; editing is not automatically saved.
-
-## Landing and browsing follow-up
-
-A separate themed landing page now leads into a project library with search, filters, sorting, grid/list views, and real saved-material previews. Native dialogs support project creation and full-source reading. A sidebar toggle expands the editorial space. These are local UI improvements delivered before the remaining cloud phases; see [INTERFACE.md](INTERFACE.md).
-
-## Implemented capabilities and their limits
-
-| Capability | Current behavior | Important qualification |
-| --- | --- | --- |
-| Source collection | Pasted text or public URL import, up to 20 sources | Duplicate checking is based on canonical URL or identical trimmed content, not semantic similarity |
-| Research gate | Requires at least three distinct records | Three records do not establish three independent publishers |
-| Evidence | Exact selected excerpts retain source IDs/titles/URLs | Source claims remain unverified |
-| Reliability | Primary, secondary, or unverified | The editor chooses the label; the app does not investigate credibility |
-| Speculation | Recognizes selected words such as may and might | Heuristics miss context and can misclassify |
-| Editorial perspective | Topic-specific analysis prompts | These are templates, not generative cross-source synthesis |
-| Writing | Long sentences, filler, passive candidates | Rules are English-oriented and do not understand all grammar or nuance |
-| Suggestions | Editable proposal, explanation, accept/reject | Some long/passive rewrites require explicit human input |
-| Revisions | Original plus previous saved text, versioned current draft | History is inspectable; no one-click restore workflow is implemented |
-| Metrics | Word/sentence counts, average length, long sentences, reading time | Counts describe text; they do not prove truth or quality |
-| Responsive UI | Desktop and mobile browser layouts | No installable desktop/mobile app is delivered |
-
-## Design decisions
-
-### Evidence remains visible
-
-Sources are persistent records rather than disposable prompt text. A brief links claims to the records that support them. Adding or removing a source clears the prior brief, preventing a stale source set from looking current.
-
-### The editor owns the rewrite
-
-No mass-accept or automatic publication is provided. Filler removal can change emphasis; sentence splitting can alter relationships; passive rewrites can invent an actor. The UI keeps the proposed text editable and the original accessible.
-
-### Small architecture, clear responsibilities
-
-React manages one tab-based workspace. FastAPI owns validation and mutations. SQL stores projects, sources, drafts, and revisions. Custom components and Lucide replace the proposed Tailwind/shadcn/Router layer; this is a documented tooling simplification, not an unfinished page-routing feature.
-
-### Metrics support judgment
-
-The 300–500-word target guides newsletter length; it is not a save limit. Reading time uses 200 words per minute. A shorter sentence or lower word count is not automatically a better editorial result.
-
-## Samples and delivered evidence
-
-| Material | Intended use |
+| PDF question | Decision |
 | --- | --- |
-| Fictional in-app sample | Explore the workflow repeatably without relying on a publisher |
-| [Real-source newsletter](SAMPLE_NEWSLETTER.md) | Review a dated editorial output with explicit provenance |
-| [Before/after example](BEFORE_AFTER.md) | See how reviewed edits preserve qualifications |
-| [Validation record](TESTING.md) | Separate implemented behavior from observed test results |
+| Who is the primary user? | A newsletter editor interpreting AI developments for founders, builders and business operators. |
+| Most important problem? | Moving from collected information to a defensible angle and readable draft without losing evidence or the author's qualifications. |
+| Core workflow? | Collect at least three sources → review an attributed brief → save a draft → inspect and decide on suggestions → compare → export. |
+| Priorities and omissions? | Prioritize source provenance, clear failure states, three useful writing checks and reversible editorial decisions. Omit news discovery, scheduling, collaboration, publishing and independent fact-checking. |
+| How would usefulness be measured? | Observe time to a usable brief, time to an editor-approved draft, source-reference defects, accepted suggestions later reversed, and blinded editor ratings for clarity/meaning. These are proposed measures, not collected usage statistics. |
 
-## Remaining scope
+## Engineering
 
-**Agreed next:** Gemini-powered synthesis and contextual writing, editable newsletter generation, streaming/progress, usage controls, managed PostgreSQL, protected access, and verified Vercel deployment. See [ROADMAP.md](ROADMAP.md) for acceptance criteria.
+| PDF question | Decision |
+| --- | --- |
+| How is it structured? | React/Vite provides a small editorial interface; FastAPI validates requests; SQLAlchemy/Alembic manage persistent projects, sources, drafts, jobs and quotas. SQLite supports local use; Neon PostgreSQL supports Vercel. |
+| AI versus deterministic logic? | Extraction/ranking, writing rules, metrics, offsets, revision handling and evidence checks are deterministic. Optional Gemini supplies research synthesis, contextual suggestions and proposed newsletters. No hidden model fallback is presented as AI output. |
+| Inaccessible URLs and missing content? | Display the import error and allow pasted text. Retain the original URL when provided; show when a source has no public link. Reject empty/short and duplicate inputs; never invent content. |
+| Unreliable output or failed requests? | Check schemas, known source IDs, exact excerpts, saved draft versions and input fingerprints. Show sanitized errors; preserve prior content; retain generation status. Bound provider retries and request size. A newsletter is a preview until explicitly applied. |
+| How do links support claims? | Provenance comes from stored records, not model-supplied URLs. Exact excerpt checks establish textual attribution; they do not establish truth, independence or that an inference follows from the excerpt. The editor reviews context and meaning. |
+| Another day of work? | Finish one-time live Gemini evaluation and full deployed browser acceptance; test inaccessible publishers and adversarial evidence; improve sentence/technical-term checks. For a long-lived public service, add per-user data isolation and stronger abuse controls. |
 
-**Outside the current delivery:** automatic news discovery, scheduled monitoring, automated newsletter publishing, collaboration, independent semantic fact-checking, and native apps. These require additional product decisions; connecting Gemini does not supply them automatically.
+## Editorial judgment
 
-> **Access update:** application login/logout and password/session requirements have been removed at the owner’s request. Landing opens the workspace directly. Database requirements and Gemini request limits remain. Platform-level Vercel protection is separate. See [deployment and Neon setup](DEPLOYMENT.md).
+| PDF question | Decision |
+| --- | --- |
+| What makes writing clear and useful? | A specific event, enough reader context, attributed evidence, explicit uncertainty and a practical implication. Preserve necessary technical detail instead of forcing every sentence to be short. |
+| How would improvement be evaluated? | Compare original/revised drafts with source access and a fixed rubric: clarity, factual accuracy, qualification retention, audience relevance and usefulness. Have editors rate versions without knowing which was revised. Inspect changed claims, not just word counts. |
+| What should never happen automatically? | Inventing facts, actors or citations; removing uncertainty; changing numerical claims, licensing or hardware conditions; erasing the original; mass-accepting edits; or publishing a draft. |
+
+## Scope and trade-offs
+
+- **Small app:** custom CSS/components and tab/hash navigation preserve a readable editorial theme without adding a UI framework.
+- **Simple schema:** briefs and revision details use JSON inside relational records; this is a pragmatic single-workspace choice, not a collaboration design.
+- **Conservative rules:** passive voice is only a candidate; a reviewed rewrite may be required. Long/technical prose can remain unchanged when context warrants it.
+- **Explicit source limits:** three usable records can all come from one organization. Reliability labels are editor-supplied.
+- **Public demonstration:** login was removed and all Vercel deployment URLs made public at the owner's request. Visitors share saved material and AI quota; this is not a private or multi-tenant service.
+- **Assignment versus extensions:** the PDF asks for a lightweight tool, not production readiness. Later landing/library, Gemini and cloud phases were additional owner requests; the original time limit is not claimed as verified.
+
+## Worked example
+
+The [342-word newsletter](SAMPLE_NEWSLETTER.md) turns three publisher sources into a qualified deployment question. Its [before/after](BEFORE_AFTER.md) removes two pieces of optional emphasis using the actual writing engine. It preserves numerical claims and citations, and leaves longer technical passages for human review.
+
+**Verification boundary:** cloud core-workflow checks, 54 backend tests and two frontend tests passed. Real Gemini output and the full deployed browser flow remain pending; [TESTING.md](TESTING.md) records the evidence.

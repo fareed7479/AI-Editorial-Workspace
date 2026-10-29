@@ -1,140 +1,104 @@
-# Architecture, persistence, and API
+# Architecture and API
+**React/Vite · FastAPI · SQLAlchemy/Alembic · SQLite/Neon**
 
-**Purpose:** map the current code to its components, stored data, HTTP contract, and editing lifecycle.
+[Docs](README.md) · [Product decisions](PRODUCT.md) · [Deployment](DEPLOYMENT.md)
 
-[Documentation guide](README.md) · [Product](PRODUCT.md) · [Testing](TESTING.md) · [Cloud roadmap](ROADMAP.md)
+## Request and data flow
 
-## Current system
-
-| Component | Implementation | Responsibility |
-| --- | --- | --- |
-| Browser UI | React, TypeScript, Vite, Lucide | Project navigation; research, editing, comparison, state feedback |
-| API client | [api.ts](../frontend/src/api.ts) | JSON requests, readable errors, export URL |
-| HTTP service | [main.py](../backend/app/main.py) | FastAPI routes, Pydantic validation, persistence coordination |
-| Persistence | [database.py](../backend/app/database.py) | SQLAlchemy models, engine, request-scoped sessions |
-| Research | [research.py](../backend/app/research.py) | URL validation/import, excerpt ranking, speculation cues, analysis prompts |
-| Writing | [writing.py](../backend/app/writing.py) | Metrics, checks, suggestion decisions, offset/version handling |
-| Schema history | [migrations/](../backend/migrations/) | Alembic upgrade/downgrade |
-
-The UI calls /api endpoints on the configured API origin. FastAPI reads/writes SQL and returns the saved workspace. Optional URL imports fetch and extract a public page before storage. The optional official Gemini Python client streams validated generation progress. There is no queue or background worker. [AI_INTEGRATION.md](AI_INTEGRATION.md) describes validation and retry behavior.
-
-## Stack and repository boundaries
-
-- **Frontend:** custom React components and CSS; one workspace uses tab state rather than a routing framework.
-- **Backend:** synchronous FastAPI endpoints with SQLAlchemy sessions and Pydantic request schemas.
-- **Database:** SQLite for local development; PostgreSQL driver and schema migration path prepared for deployment.
-- **Extraction:** HTTPX, Trafilatura, and BeautifulSoup.
-- **Verification:** Pytest/HTTPX, Vitest, and Playwright; see [TESTING.md](TESTING.md).
-
-## Landing and workspace view state
-
-The root URL renders Landing.tsx; #/workspace selects the workspace without a routing dependency. Hash changes support browser navigation and guard unsaved draft text. WorkspaceLibrary.tsx reuses GET /api/projects and GET /api/projects/{id} for browsing and previews, so the SQL schema and backend API are unchanged. SourceReader.tsx and ProjectDialog.tsx use native modal dialogs. The existing App.tsx still owns editing and saved project state. See [INTERFACE.md](INTERFACE.md).
-
-## Relational model
-
-IDs are generated UUID strings stored in string columns. The database preserves the original three content tables and adds generation_jobs (request UUID, snapshot fingerprint, model, status, usage and result JSON) and request_quotas (atomic shared request counters) in migration 002:
-
-| Table | Main fields | Relationships and constraints |
-| --- | --- | --- |
-| projects | id, title, created_at, brief JSON nullable | One-to-many sources; optional one-to-one draft |
-| sources | id, project_id, title, url nullable, content, kind, reliability, created_at | Foreign key and index on project_id |
-| drafts | id, project_id, original, current, version, suggestions JSON, revisions JSON | Unique project_id; foreign key to project |
-
-ORM relationships configure dependent-record cleanup; foreign keys declare cascade deletion. No project-delete endpoint or UI is currently exposed.
-
-| JSON payload | Stored content |
-| --- | --- |
-| Brief | Method, per-source items, selected evidence, analysis fields, overall angle, limitations |
-| Evidence | Source ID/title/URL, exact excerpt, source_claim or speculation, verified=false |
-| Suggestion | ID, kind, passage, character offsets, replacement, explanation, manual-edit flag, status |
-| Revision | Previous version number, previous text, reason for the change |
-
-Current JSON columns avoid extra tables for a small single-editor history. No vector database or full-text index is required by the implemented workflow.
-
-## HTTP API
-
-All paths below begin **/api**. Request/response schemas can be explored at [local /docs](http://127.0.0.1:8000/docs).
-
-| Method | Path | Request / effect |
-| --- | --- | --- |
-| GET | /health | SQL connectivity check and deterministic-mode response |
-| GET | /projects | List project ID, title, source count |
-| POST | /projects | title; create project, HTTP 201 |
-| GET | /projects/{id} | Sources, saved brief, draft, suggestions, history, metrics |
-| POST | /projects/{id}/sources | title, optional url/content, kind, reliability; HTTP 201 |
-| DELETE | /projects/{id}/sources/{source_id} | Remove source and clear saved brief |
-| POST | /projects/{id}/brief | Require 3+ sources; build and persist brief |
-| PUT | /projects/{id}/draft | text; version required when updating an existing draft |
-| POST | /projects/{id}/analyze | Exact saved text and current version; replace suggestions |
-| POST | /projects/{id}/suggestions/{sid} | action=accept/reject, current version, optional replacement |
-| GET | /projects/{id}/export | Saved Markdown draft and source references |
-
-Example payloads:
-
-~~~json
-{"title": "This week's local inference briefing"}
+~~~mermaid
+flowchart TD
+  UI["Browser: editorial workspace"] --> API["FastAPI: validation and mutations"]
+  API --> DB["SQL: content, revisions, jobs, quota"]
+  API --> Rules["Deterministic research and writing"]
+  API --> Gemini["Optional Gemini: validated proposals"]
+  Rules --> API
+  Gemini --> API
 ~~~
 
-~~~json
-{"title": "Source title", "url": "https://example.com/report", "content": "Paste at least 40 characters of original source content here.", "kind": "report", "reliability": "unverified"}
-~~~
+The production frontend proxies /api to the API project. Local development uses VITE_API_URL. Backend credentials never enter the React bundle. Source/draft text is sent to Google only for explicit Gemini generation.
 
-~~~json
-{"action": "accept", "version": 2, "replacement": "The reviewed replacement passage."}
-~~~
+## Code responsibilities
 
-The example source URL is illustrative. Sending it without pasted content would request an actual import; it is not a supplied article.
-
-| Response | Meaning |
+| Module | Responsibility |
 | --- | --- |
-| 404 | Project or source not found |
-| 409 | Draft version/text is stale; reload or save before continuing |
-| 422 | Invalid input or unmet workflow precondition |
+| frontend/src/App.tsx | Workspace state, source/draft actions, unsaved-change guards |
+| Landing / WorkspaceLibrary / SourceReader / ProjectDialog | Entry page, saved-material browsing, full-source and creation dialogs |
+| AIStudioPanel | Progress, history, error display and newsletter preview/application |
+| backend/app/main.py | Content API, validation, origin checks, no-store responses |
+| research.py / writing.py | Extraction/ranking; metrics, checks and exact-offset decisions |
+| gemini.py / ai_schemas.py / ai_editorial.py | SDK transport; schemas; prompts and evidence/meaning checks |
+| ai_routes.py / limits.py | Generation lifecycle, replay, SQL quota, stale-state checks |
+| config.py / database.py / serializers.py | Settings, SQL models/sessions and API representations |
+| migrations | Additive schema upgrades |
 
-## Editing and invalidation rules
+## Persistent model
 
-1. **First save:** set original and current text; original is not subsequently overwritten.
-2. **Manual edit:** save prior current text in history, update current, increment version, clear suggestions. Saving identical text does not add a revision.
-3. **Analyze:** require exact saved text/version; generate a fresh set of suggestions.
-4. **Reject:** mark the chosen suggestion rejected; text and draft version stay unchanged.
-5. **Accept:** verify the stored passage at its offsets; save previous text, apply rewrite, increment version, mark it accepted.
-6. **After acceptance:** shift later offsets and mark overlapping pending suggestions stale. Run checks again when needed.
-7. **Compare/export:** use saved server state. Source changes clear the brief but do not automatically regenerate or rewrite the draft.
-
-Sequential stale requests are rejected. PostgreSQL mutations lock the project row before checking the draft version. Source/draft changes during generation invalidate its result. SQLite remains a local single-editor mode; this is not a multi-tenant collaboration product. History is inspectable, not a full restore/undo API.
-
-## Input and import boundaries
-
-| Input | Limit / behavior |
+| Table | Main content |
 | --- | --- |
-| Project title | 1–160 characters; blank values rejected |
-| Source title | 1–240 characters; blank values rejected |
-| Source URL | Up to 2,048 characters; HTTP(S), no credentials, standard ports only |
-| Sources | Up to 20 per project; minimum 3 to build brief |
-| Source content | At least 40 characters; pasted input up to 50,000 |
-| Draft/replacement | Up to 50,000 characters per input |
-| Imported body | Up to 2,000,000 bytes; extracted text capped at 50,000 characters |
-| Network behavior | 12-second HTTPX timeout; no redirect following; reject non-global DNS addresses and unsupported response types |
+| projects | UUID, title, created time, nullable brief JSON |
+| sources | Project FK, title, optional original URL, text, type, reliability, created time |
+| drafts | Unique project FK, immutable original, current text, version, suggestions/revisions JSON |
+| generation_jobs | UUID request ID, project FK, kind/status, model/provider, input fingerprint, usage/result/error metadata |
+| request_quotas | Atomic counters keyed by UTC AI day or other quota key |
 
-DNS validation and connection resolution happen separately; network egress restrictions are still needed to address DNS rebinding. React renders content as text rather than injected HTML. See [AI_DISCLOSURE.md](AI_DISCLOSURE.md).
+Projects own sources and an optional draft. Briefs/revisions use JSON rather than separate tables to keep the single-workspace model small. Relationships configure dependent-record cleanup; no project-delete/restore UI is exposed. PostgreSQL mutations lock the project row; SQLite remains local single-editor use.
 
-## Local operation and deployment state
+## Content HTTP contract
 
-Run the API from backend/ so the default SQLite URL resolves to backend/editorial.db. SQLite creates a fresh local schema on startup; PostgreSQL requires Alembic migrations before traffic. Close the local API before copying a SQLite backup. PostgreSQL backup/restore should be tested against a separate database before changing production configuration.
+All routes below start with **/api**. There are no application login/session endpoints.
 
-[compose.yaml](../compose.yaml) defines a local PostgreSQL/API/web topology with readiness checks. It has not been executed successfully in the recorded environment. The [CI workflow](../.github/workflows/ci.yml) declares PostgreSQL migration and browser checks; no remote success is asserted here.
-
-**Cloud source prepared:** backend/index.py exports FastAPI, frontend/vercel.json proxies API traffic, and two protected Vercel projects are linked. Managed PostgreSQL, environment provisioning, migrations and deployed checks remain gates. See [DEPLOYMENT.md](DEPLOYMENT.md).
-
-## Gemini and access endpoints
-
-Workspace API routes no longer require application login. Hosted startup still requires PostgreSQL. Origin checks and no-store API responses remain; anyone who can reach an unprotected deployment shares its workspace access.
-
-| Method | Path | Purpose |
+| Method | Path | Effect |
 | --- | --- | --- |
-| GET | /api/ai/config and /api/ai/usage | Readiness, model and shared daily quota |
-| POST | /api/projects/{id}/ai/generate | UUID, kind and draft version; NDJSON validated progress/result |
-| GET | /api/projects/{id}/ai/jobs and /api/projects/{id}/ai/jobs/{job_id} | Last ten jobs or one persisted result |
-| POST | /api/projects/{id}/ai/jobs/{job_id}/apply | Explicit, version-checked newsletter application |
+| GET | /health | Check SQL connectivity and report configured mode |
+| GET / POST | /projects | List summaries / create a project |
+| GET | /projects/{id} | Load sources, brief, draft, metrics and history |
+| POST | /projects/{id}/sources | Validate/import and save source; clear brief |
+| DELETE | /projects/{id}/sources/{source_id} | Remove source; clear brief |
+| POST | /projects/{id}/brief | Require three sources; save deterministic brief |
+| PUT | /projects/{id}/draft | Save text; require version for an existing draft |
+| POST | /projects/{id}/analyze | Require exact saved text/version; replace suggestions |
+| POST | /projects/{id}/suggestions/{sid} | Accept/reject with version and optional reviewed replacement |
+| GET | /projects/{id}/export | Download saved Markdown and references |
 
-Full error and data boundaries: [AI integration](AI_INTEGRATION.md).
+## Gemini HTTP contract
+
+| Method | Path | Effect |
+| --- | --- | --- |
+| GET | /ai/config / /ai/usage | Non-secret readiness, model/limits and daily quota |
+| POST | /projects/{id}/ai/generate | UUID, kind and draft version; NDJSON progress/result |
+| GET | /projects/{id}/ai/jobs | Most recent ten jobs |
+| GET | /projects/{id}/ai/jobs/{job_id} | One persisted job/result |
+| POST | /projects/{id}/ai/jobs/{job_id}/apply | Explicit, version-checked newsletter application |
+
+Typical failures: 404 missing record; 409 stale state or incompatible request replay; 422 invalid input/precondition; 429 cap/provider quota; 503 missing provider/cloud configuration. Streaming failures use a labeled error event after HTTP streaming begins. [AI integration](AI_INTEGRATION.md) describes replay and cancellation limits.
+
+## Editing lifecycle
+
+1. First save establishes original/current text.
+2. A changed manual save records prior text, increments version and clears suggestions.
+3. Analysis uses the exact saved text; reject changes status only.
+4. Accept verifies passage offsets, stores the prior version and applies the reviewed replacement.
+5. Later offsets shift; overlapping pending suggestions become stale.
+6. Recheck after edits. Compare/export use saved state, not unsaved editor text.
+
+Source changes invalidate the brief; changed sources/brief/draft invalidate an in-flight AI result. Applying a newsletter stores a revision and preserves the original. There is no auto-publication or background autosave.
+
+## Input boundaries
+
+| Input | Limit |
+| --- | --- |
+| Project / source title | 160 / 240 characters |
+| Original URL | 2048 characters; public HTTP(S), no URL credentials or unusual ports |
+| Source text / draft / replacement | 50000 characters per input |
+| Sources | At most 20 per project; at least 3 for research/newsletter |
+| Imported response | At most 2000000 bytes; extracted text capped at 50000 |
+| Import timeout | 12 seconds; no redirect following |
+| AI request / response | Configurable; see AI_INTEGRATION.md |
+
+Import validation rejects non-global resolved addresses and unsupported content types. DNS validation and connection resolution remain separate: DNS-rebinding protection is incomplete. Reliability is a label, not fact-checking. React renders source content as text.
+
+## Operations
+
+SQLite creates a local schema for zero-setup use. Vercel requires PostgreSQL and migrations; its filesystem is not persistent storage. API builds run migrations, rollback-safe non-AI verification and backend tests. Frontend builds run tests, TypeScript and Vite. There is no queue, agent framework, vector database or multi-tenant account layer.
+
+[Validation](TESTING.md) · [Disclosure](AI_DISCLOSURE.md) · [Requirement mapping](REQUIREMENTS.md)

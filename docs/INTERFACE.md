@@ -1,80 +1,50 @@
-# Landing page and workspace library
+# Interface walkthrough
+**A small editorial studio in the Fieldnotes theme**
 
-> **Gemini delivery update:** optional source-grounded research, exact-passage writing suggestions, reviewed newsletter generation, progress/history and direct workspace access now exist. Rule-based tools remain available. Submitted sources/draft context are sent to Google only when you request generation. Model output is checked for structure and exact evidence references, not independently verified for truth. Live Gemini and deployment acceptance remain pending. See [AI integration](AI_INTEGRATION.md) and [deployment](DEPLOYMENT.md).
+[Open application](https://fieldnotes-editorial-workspace.vercel.app/) · [Docs](README.md) · [Product decisions](PRODUCT.md)
 
+## The route through the app
 
-**Purpose:** explain the interface follow-up added before the Gemini/Vercel implementation phases.
-
-[Documentation guide](README.md) · [Product](PRODUCT.md) · [Architecture](ARCHITECTURE.md) · [Validation](TESTING.md)
-
-## Entry points and visual theme
-
-| View | Local URL | Purpose |
+| View | Use it to | What persists |
 | --- | --- | --- |
-| Landing | [http://127.0.0.1:5173](http://127.0.0.1:5173) | Introduce Fieldnotes, explain the editorial process, and enter the application |
-| Workspace library | [http://127.0.0.1:5173/#/workspace](http://127.0.0.1:5173/#/workspace) | Browse saved projects and preview their material |
-| Editorial desk | Open a project from the library/sidebar | Use the existing research, writing, and comparison tabs |
+| Landing | Understand the workflow and enter/explore the sample | Navigation only |
+| My workspace | Search, filter, sort and reopen projects | Saved projects/material |
+| Research desk | Add/read sources and inspect brief/evidence | Sources and saved brief |
+| Writing studio | Save text, review proposals and decide on changes | Original/current text and revisions |
+| Compare revisions | Inspect differences, metrics and prior versions | Saved history |
+| Export | Download saved Markdown and references | Download, not a publishing action |
 
-The landing page keeps the existing cream, forest-green, sage, and serif style. Its paper-and-note illustrations are CSS layouts, not screenshots of actual stored content. Product claims describe currently implemented features; the project workspace exposes Gemini controls when the backend is configured.
+There is no application login, sign-out or password gate. All Vercel production/preview links are also public. Older preview URLs represent older source versions; use production for the current demonstration.
 
-## Landing page
+## Landing and library
 
-- **Open workspace** and the main call to action enter the application.
-- **Explore a sample** creates and opens the explicitly fictional sample project.
-- **The process** and **The workspace** links move to sections on the landing page.
-- The Fieldnotes brand in the workspace returns to the landing page.
-- Browser back navigation is supported through hash-based view state; no page-router dependency was added.
+The cream/forest/sage palette, serif headings and restrained cards preserve the original editorial theme. Landing illustrations are CSS compositions, not screenshots of stored user content.
 
-The landing page itself does not need an API request. Project loading, creation, and sample actions require the backend. Returning to the workspace can retain the selected project while the application remains mounted.
+The library provides project search, source-count filters, title/date/source-count sorting, grid/list views, and saved source/brief/draft previews. Full-source dialogs offer more reading room; the sidebar toggle expands the editorial desk. This library browses application records, not files on the visitor's computer.
 
-## Project library
+## Research controls
+
+Paste articles, reports or tweet text, optionally retain an original URL, or try URL-only extraction. Inaccessible publishers show errors; manual paste remains available. Reliability labels are chosen by the editor. Sources without public URLs are visibly identified.
+
+Build the baseline brief after collecting three sources. Review attributed excerpts, analysis prompts, audience and angle. Configured Gemini tools can add synthesis, contradictions and uncertainty; generated evidence remains unverified.
+
+## Draft and suggestion controls
 
 | Control | Behavior |
 | --- | --- |
-| Search | Filter project titles; clear with the search control |
-| All projects / 3+ sources / Gathering sources | Filter by stored source count; three sources do not prove independence or verification |
-| Sort | Preserve API newest-first order, sort titles A–Z, or sort by source count |
-| Grid / list | Switch between roomy cards and compact rows |
-| New project | Open a native dialog with a title field and inline error feedback |
-| Project title | Open the project in the research desk |
-| Preview | Load the selected project's real saved sources, brief, and draft |
-| Reset search & filters | Restore the unfiltered library after a no-results search |
-| My workspace | Return from an editorial project to the library |
+| Save draft | Preserve first original; record changed saved versions |
+| Save & check writing | Analyze saved text with deterministic checks |
+| Proposed rewrite | Editable; some passages require a reviewed replacement |
+| Accept / Reject | Apply one decision; overlapping pending proposals become stale |
+| Compare revisions | Inspect saved original/current text and history |
+| Export | Download saved text; unsaved editor changes are excluded |
 
-Counts come from stored project records. The library contains saved editorial projects and their material; it does not enumerate files on the user's computer.
+Unsaved-change prompts protect navigation and unload. There is no background autosave or one-click revision restore.
 
-## Saved-material preview
+## Gemini panel
 
-The preview panel fetches full project state using the existing project API. It shows source count, draft word count, and three material views:
+The panel exposes readiness/model, remaining requests, progress, safe errors and recent jobs. Writing/newsletter requests require saved state; research/newsletters require three sources. Generated newsletters appear as reviewable previews. **Use this draft** saves a revision; generating alone does not overwrite the draft.
 
-| View | What appears |
-| --- | --- |
-| Sources | Stored titles, types, and reliability labels; click a source to read it |
-| Brief | The saved angle and source-summary count, or a useful missing-brief state |
-| Draft | Version, word count, and the first 900 characters of saved text; open the studio for full editing |
+## Feedback, accessibility and verification
 
-On a narrow screen, the preview stacks below the library and opening it scrolls the panel into view. Empty material is shown honestly; the UI does not fabricate a brief or draft.
-
-## Reading and editing space
-
-**Read full source** opens a native modal dialog containing the complete stored text, original link when present, word count, and reliability label. Escape or the close control dismisses it; native modal behavior keeps keyboard focus inside while open. Stored claims remain unverified.
-
-**Expand workspace** hides the project sidebar to free horizontal space. **Show sidebar** restores it. Research, writing, comparison, and export continue to use the same saved project state.
-
-Unsaved-draft prompts guard leaving the editor for the library or landing page. Comparison/export still use saved text; this change does not add autosave, file uploads, cloud generation, or public hosting.
-
-## Implementation and verification
-
-| File | Responsibility |
-| --- | --- |
-| [Landing.tsx](../frontend/src/Landing.tsx) | Landing narrative, section links, entry actions |
-| [WorkspaceLibrary.tsx](../frontend/src/WorkspaceLibrary.tsx) | Search/filter/sort, views, real project previews |
-| [SourceReader.tsx](../frontend/src/SourceReader.tsx) | Full stored-source modal |
-| [ProjectDialog.tsx](../frontend/src/ProjectDialog.tsx) | Accessible project creation dialog |
-| [experience.css](../frontend/src/experience.css) | Matching theme, responsive layout, workspace space controls |
-| [App.tsx](../frontend/src/App.tsx) | View navigation and existing editorial workflow integration |
-| [landing-library.spec.ts](../frontend/e2e/landing-library.spec.ts) | Landing/library desktop and mobile workflow checks |
-
-The backend/schema and dependency lists are unchanged. See [TESTING.md](TESTING.md) for dated results. Gemini and Vercel remain in [ROADMAP.md](ROADMAP.md).
-
-> **Access update:** application login/logout and password/session requirements have been removed at the owner’s request. Landing opens the workspace directly. Database requirements and Gemini request limits remain. Platform-level Vercel protection is separate. See [deployment and Neon setup](DEPLOYMENT.md).
+Native dialogs, labeled inputs/buttons, visible loading/error/empty states and responsive layouts support the core flow. Public landing, a preview landing and frontend API reads return HTTP 200. Historical desktop/mobile checks exist, but a fresh complete deployed browser run remains pending. See [TESTING.md](TESTING.md).
